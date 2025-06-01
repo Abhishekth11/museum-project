@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Virtual Tours - National Museum of Art & Culture</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Raleway:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="light-theme">
+    <header class="site-header">
+        <div class="container">
+            <div class="header-inner">
+                <div class="logo">
+                    <a href="index.html">
+                        <h1>NMAC</h1>
+                    </a>
+                </div>
+                <nav class="main-nav">
+                    <button class="menu-toggle" aria-label="Toggle menu">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </button>
+                    <ul class="nav-menu">
+                        <li><a href="index.html">Home</a></li>
+                        <li><a href="exhibitions.html">Exhibitions</a></li>
+                        <li><a href="events.html">Events</a></li>
+                        <li><a href="collections.html">Collections</a></li>
+                        <li><a href="visit.html">Visit</a></li>
+                        <li><a href="about.html">About</a></li>
+                    </ul>
+                </nav>
+                <div class="header-actions">
+                    <button class="search-toggle" aria-label="Search">
+                        <i class="fas fa-search"></i>
+                    </button>
+                    <button class="theme-toggle" aria-label="Toggle theme">
+                        <i class="fas fa-sun"></i>
+                        <i class="fas fa-moon"></i>
+                    </button>
+                    <a href="tickets.html" class="btn btn-primary">Buy Tickets</a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="search-overlay">
+        <div class="container">
+            <form class="search-form">
+                <input type="text" placeholder="Search for exhibitions, events, artists..." aria-label="Search">
+                <button type="submit" aria-label="Submit search">
+                    <i class="fas fa-search"></i>
+                </button>
+            </form>
+            <button class="search-close" aria-label="Close search">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+    </div>
+
+    <section class="page-header">
+        <div class="container">
+            <h1>Virtual Tours</h1>
+            <p>Explore our museum from anywhere in the world with our immersive virtual tours.</p>
+        </div>
+    </section>
+
+    <section class="featured-tours">
+        <div class="container">
+            <h2>Featured Tours</h2>
+            <div class="featured-tours-grid">
+                <div class="tour-card featured">
+                    <div class="tour-image">
+                        <img src="https://source.unsplash.com/random/800x600/?art-gallery" alt="Modern Art Gallery">
+                        <div class="tour-badge">360° Tour</div>
+                    </div>
+                    <div class="tour-details">
+                        <h3>Modern Art Gallery</h3>
+                        <p class="tour-duration">Duration: 30 minutes</p>
+                        <p>Explore our modern art collection with this immersive virtual tour. Navigate through our galleries and discover masterpieces from the 20th century.</p>
+                        <a href="virtual-tour-detail.html?id=1" class="btn btn-primary">Start Tour</a>
+                    </div>
+                </div>
+                <div class="tour-card featured">
+                    <div class="tour-image">
+                        <img src="https://source.unsplash.com/random/800x600/?sculpture-garden" alt="Contemporary Sculpture Garden">
+                        <div class="tour-badge">Video Tour</div>
+                    </div>
+                    <div class="tour-details">
+                        <h3>Contemporary Sculpture Garden</h3>
+                        <p class="tour-duration">Duration: 20 minutes</p>
+                        <p>Take a virtual stroll through our outdoor sculpture garden featuring works by contemporary artists.</p>
+                        <a href="virtual-tour-detail.html?id=5" class="btn btn-primary">Start Tour</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="all-tours">
+        <div class="container">
+            <h2>All Virtual Tours</h2>
+            <div class="tours-grid">
+                <div class="tour-card">
+                    <div class="tour-image">
+                        <img src="https://source.unsplash.com/random/600x400/?ancient-artifacts" alt="Ancient Civilizations">
+                        <div class="tour-badge">Video Tour</div>
+                    </div>
+                    <div class="tour-details">
+                        <h3>Ancient Civilizations</h3>
+                        <p class="tour-duration">Duration: 25 minutes</p>
+                        <p>Step back in time and discover artifacts from ancient civilizations. This virtual tour takes you through our archaeological collection.</p>
+                        <a href="virtual-tour-detail.html?id=2" class="btn btn-secondary">Start Tour</a>
+                    </div>
+                </div>
+                <div class="tour-card">
+                    <div class="tour-image">
+                        <img src="https://source.unsplash.com/random/600x400/?natural-history" alt="Natural History Wing">
+                        <div class="tour-badge">Interactive</div>
+                    </div>
+                    <div class="tour-details">
+                        <h3>Natural History Wing</h3>
+                        <p class="tour-duration">Duration: 40 minutes</p>
+                        <p>Discover the wonders of natural history in this interactive tour. Explore fossils, minerals, and wildlife exhibits.</p>
+                        <a href="virtual-tour-detail.html?id=3" class="btn btn-secondary">Start Tour</a>
+                    </div>
+                </div>
+                <div class="tour-card">
+                    <div class="tour-image">
+                        <img src="https://source.unsplash.com/random/600x400/?renaissance-art" alt="Renaissance Art Collection">
+                        <div class="tour-badge">360° Tour</div>
+                    </div>
+                    <div class="tour-details">
+                        <h3>Renaissance Art Collection</h3>
+                        <p class="tour-duration">Duration: 35 minutes</p>
+                        <p>Immerse yourself in the beauty of Renaissance art with this detailed virtual tour of our Renaissance collection.</p>
+                        <a href="virtual-tour-detail.html?id=4" class="btn btn-secondary">Start Tour</a>
+                    </div>
+                </div>
+                <div class="tour-card">
+                    <div class="tour-image">
+                        <img src="https://source.unsplash.com/random/600x400/?photography" alt="Photography Through the Ages">
+                        <div class="tour-badge">Interactive</div>
+                    </div>
+                    <div class="tour-details">
+                        <h3>Photography Through the Ages</h3>
+                        <p class="tour-duration">Duration: 30 minutes</p>
+                        <p>Explore the evolution of photography from its earliest days to modern digital techniques in this comprehensive tour.</p>
+                        <a href="virtual-tour-detail.html?id=6" class="btn btn-secondary">Start Tour</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="tour-technology">
+        <div class="container">
+            <div class="technology-content">
+                <div class="technology-info">
+                    <h2>Virtual Tour Technology</h2>
+                    <p>Our virtual tours use cutting-edge technology to provide an immersive experience. From 360° panoramas to interactive elements, our tours are designed to make you feel like you're really here.</p>
+                    <ul class="technology-features">
+                        <li><span class="feature-dot"></span>High-resolution imagery</li>
+                        <li><span class="feature-dot"></span>Interactive hotspots with detailed information</li>
+                        <li><span class="feature-dot"></span>Audio narration by expert curators</li>
+                        <li><span class="feature-dot"></span>Compatible with VR headsets for enhanced immersion</li>
+                    </ul>
+                </div>
+                <div class="technology-image">
+                    <img src="https://source.unsplash.com/random/800x600/?virtual-reality" alt="Virtual tour technology">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="newsletter">
+        <div class="container">
+            <div class="newsletter-content">
+                <h2>Stay Informed</h2>
+                <p>Subscribe to our newsletter for updates on exhibitions, events, and special offers.</p>
+                <form class="newsletter-form">
+                    <input type="email" placeholder="Your email address" required aria-label="Email address">
+                    <button type="submit" class="btn btn-primary">Subscribe</button>
+                </form>
+                <div class="form-message"></div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="site-footer">
+        <div class="container">
+            <div class="footer-top">
+                <div class="footer-col">
+                    <h3>National Museum of Art & Culture</h3>
+                    <p>123 Museum Street<br>City, State 12345</p>
+                    <p>Phone: (123) 456-7890<br>Email: info@nmac.org</p>
+                </div>
+                <div class="footer-col">
+                    <h3>Visit</h3>
+                    <ul>
+                        <li><a href="visit.html">Hours & Admission</a></li>
+                        <li><a href="visit.html#directions">Directions & Parking</a></li>
+                        <li><a href="visit.html#accessibility">Accessibility</a></li>
+                        <li><a href="visit.html#tours">Tours & Groups</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h3>Explore</h3>
+                    <ul>
+                        <li><a href="exhibitions.html">Exhibitions</a></li>
+                        <li><a href="events.html">Events</a></li>
+                        <li><a href="collections.html">Collections</a></li>
+                        <li><a href="learn.html">Learn</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h3>Support</h3>
+                    <ul>
+                        <li><a href="membership.html">Membership</a></li>
+                        <li><a href="donate.html">Donate</a></li>
+                        <li><a href="volunteer.html">Volunteer</a></li>
+                        <li><a href="corporate.html">Corporate Support</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <div class="social-links">
+                    <a href="#" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+                    <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                    <a href="#" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+                </div>
+                <div class="footer-legal">
+                    <p>&copy; 2024 National Museum of Art & Culture. All Rights Reserved.</p>
+                    <ul>
+                        <li><a href="privacy.html">Privacy Policy</a></li>
+                        <li><a href="terms.html">Terms of Use</a></li>
+                        <li><a href="contact.html">Contact Us</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/main.js"></script>
+</body>
+</html>
