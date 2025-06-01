@@ -5,6 +5,13 @@ require_once 'includes/functions.php';
 
 $page_title = "National Museum of Art & Culture";
 
+// Check for login success message
+$welcome_message = '';
+if (isset($_SESSION['login_success'])) {
+    $welcome_message = $_SESSION['login_success'];
+    unset($_SESSION['login_success']);
+}
+
 // Get featured exhibition
 $featured_exhibition = getExhibitions('current', 1);
 $featured_exhibition = !empty($featured_exhibition) ? $featured_exhibition[0] : null;
@@ -17,6 +24,49 @@ $collection_highlights = getCollections('all', 4);
 
 include 'includes/header.php';
 ?>
+
+<?php if ($welcome_message): ?>
+<div class="welcome-banner">
+    <div class="container">
+        <div class="welcome-message">
+            <i class="fas fa-check-circle"></i>
+            <span><?php echo htmlspecialchars($welcome_message); ?></span>
+            <button class="close-welcome" onclick="this.parentElement.parentElement.style.display='none'">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+    </div>
+</div>
+<?php endif; ?>
+
+<?php if (isLoggedIn()): ?>
+<div class="user-dashboard-preview">
+    <div class="container">
+        <div class="dashboard-preview-content">
+            <h3>Welcome back, <?php echo htmlspecialchars($_SESSION['user_name']); ?>!</h3>
+            <?php if (hasPermission('manage_exhibitions')): ?>
+                <div class="admin-quick-links">
+                    <a href="admin/dashboard.php" class="btn btn-secondary">
+                        <i class="fas fa-tachometer-alt"></i> Go to Dashboard
+                    </a>
+                    <a href="admin/exhibitions.php" class="btn btn-outline">
+                        <i class="fas fa-image"></i> Manage Exhibitions
+                    </a>
+                </div>
+            <?php else: ?>
+                <div class="user-quick-links">
+                    <a href="events.php" class="btn btn-secondary">
+                        <i class="fas fa-calendar"></i> View Events
+                    </a>
+                    <a href="collections.php" class="btn btn-outline">
+                        <i class="fas fa-palette"></i> Browse Collections
+                    </a>
+                </div>
+            <?php endif; ?>
+        </div>
+    </div>
+</div>
+<?php endif; ?>
 
 <section class="hero">
     <div class="hero-content">
@@ -143,57 +193,79 @@ include 'includes/header.php';
             <h2>Collection Highlights</h2>
             <a href="collections.php" class="view-all">Explore Collection</a>
         </div>
-        <div class="collection-slider">
-            <?php if (!empty($collection_highlights)): ?>
-                <?php foreach ($collection_highlights as $collection): ?>
-                    <div class="collection-item">
-                        <img src="<?php echo !empty($collection['image']) ? 'uploads/collections/' . $collection['image'] : 'https://source.unsplash.com/random/400x500/?painting'; ?>" alt="<?php echo htmlspecialchars($collection['title']); ?>">
+        <div class="collection-slider-container">
+            <div class="collection-slider" id="collection-slider">
+                <?php if (!empty($collection_highlights)): ?>
+                    <?php foreach ($collection_highlights as $index => $collection): ?>
+                        <div class="collection-item <?php echo $index === 0 ? 'active' : ''; ?>">
+                            <img src="<?php echo !empty($collection['image']) ? 'uploads/collections/' . $collection['image'] : 'https://source.unsplash.com/random/400x500/?painting'; ?>" alt="<?php echo htmlspecialchars($collection['title']); ?>">
+                            <div class="collection-info">
+                                <h3><?php echo htmlspecialchars($collection['title']); ?></h3>
+                                <p><?php echo htmlspecialchars($collection['artist'] ?? 'Unknown Artist'); ?></p>
+                                <p class="collection-year"><?php echo htmlspecialchars($collection['year'] ?? 'Date Unknown'); ?></p>
+                                <a href="collection-detail.php?id=<?php echo $collection['id']; ?>" class="btn btn-text">View Details</a>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                <?php else: ?>
+                    <div class="collection-item active">
+                        <img src="https://source.unsplash.com/random/400x500/?renaissance-painting" alt="Renaissance Masterpiece">
                         <div class="collection-info">
-                            <h3><?php echo htmlspecialchars($collection['title']); ?></h3>
-                            <p><?php echo htmlspecialchars($collection['year']); ?></p>
+                            <h3>The Birth of Venus</h3>
+                            <p>Sandro Botticelli</p>
+                            <p class="collection-year">c. 1484-1486</p>
+                            <a href="collections.php" class="btn btn-text">View Details</a>
                         </div>
                     </div>
-                <?php endforeach; ?>
-            <?php else: ?>
-                <div class="collection-item">
-                    <img src="https://source.unsplash.com/random/400x500/?painting" alt="Renaissance Painting">
-                    <div class="collection-info">
-                        <h3>Renaissance Masterpieces</h3>
-                        <p>15th-16th Century</p>
+                    <div class="collection-item">
+                        <img src="https://source.unsplash.com/random/400x500/?modern-sculpture" alt="Modern Sculpture">
+                        <div class="collection-info">
+                            <h3>Abstract Form III</h3>
+                            <p>Henry Moore</p>
+                            <p class="collection-year">1953</p>
+                            <a href="collections.php" class="btn btn-text">View Details</a>
+                        </div>
                     </div>
-                </div>
-                <div class="collection-item">
-                    <img src="https://source.unsplash.com/random/400x500/?sculpture" alt="Modern Sculpture">
-                    <div class="collection-info">
-                        <h3>Modern Sculpture</h3>
-                        <p>20th Century</p>
+                    <div class="collection-item">
+                        <img src="https://source.unsplash.com/random/400x500/?photography-art" alt="Photography Collection">
+                        <div class="collection-info">
+                            <h3>Urban Landscapes</h3>
+                            <p>Ansel Adams</p>
+                            <p class="collection-year">1940-1960</p>
+                            <a href="collections.php" class="btn btn-text">View Details</a>
+                        </div>
                     </div>
-                </div>
-                <div class="collection-item">
-                    <img src="https://source.unsplash.com/random/400x500/?photography" alt="Photography Collection">
-                    <div class="collection-info">
-                        <h3>Photography Archive</h3>
-                        <p>1900-Present</p>
+                    <div class="collection-item">
+                        <img src="https://source.unsplash.com/random/400x500/?ancient-artifacts" alt="Ancient Artifacts">
+                        <div class="collection-info">
+                            <h3>Greek Amphora</h3>
+                            <p>Unknown Artist</p>
+                            <p class="collection-year">5th Century BCE</p>
+                            <a href="collections.php" class="btn btn-text">View Details</a>
+                        </div>
                     </div>
-                </div>
-                <div class="collection-item">
-                    <img src="https://source.unsplash.com/random/400x500/?artifacts" alt="Ancient Artifacts">
-                    <div class="collection-info">
-                        <h3>Ancient Artifacts</h3>
-                        <p>3000 BCE-500 CE</p>
+                    <div class="collection-item">
+                        <img src="https://source.unsplash.com/random/400x500/?impressionist-painting" alt="Impressionist Painting">
+                        <div class="collection-info">
+                            <h3>Water Lilies</h3>
+                            <p>Claude Monet</p>
+                            <p class="collection-year">1919</p>
+                            <a href="collections.php" class="btn btn-text">View Details</a>
+                        </div>
                     </div>
-                </div>
-            <?php endif; ?>
-        </div>
-        <div class="collection-controls">
-            <button class="prev-btn" aria-label="Previous item"><i class="fas fa-chevron-left"></i></button>
-            <div class="slider-dots">
-                <span class="dot active"></span>
-                <span class="dot"></span>
-                <span class="dot"></span>
-                <span class="dot"></span>
+                <?php endif; ?>
             </div>
-            <button class="next-btn" aria-label="Next item"><i class="fas fa-chevron-right"></i></button>
+            <div class="collection-controls">
+                <button class="prev-btn" aria-label="Previous item" onclick="moveSlider(-1)">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+                <div class="slider-dots" id="slider-dots">
+                    <!-- Dots will be generated by JavaScript -->
+                </div>
+                <button class="next-btn" aria-label="Next item" onclick="moveSlider(1)">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
         </div>
     </div>
 </section>
@@ -243,3 +315,83 @@ include 'includes/header.php';
 </section>
 
 <?php include 'includes/footer.php'; ?>
+
+<script>
+// Collection Slider Functionality
+let currentSlide = 0;
+const slides = document.querySelectorAll('.collection-item');
+const totalSlides = slides.length;
+
+// Generate dots
+function generateDots() {
+    const dotsContainer = document.getElementById('slider-dots');
+    dotsContainer.innerHTML = '';
+    
+    for (let i = 0; i < totalSlides; i++) {
+        const dot = document.createElement('span');
+        dot.className = `dot ${i === 0 ? 'active' : ''}`;
+        dot.onclick = () => goToSlide(i);
+        dotsContainer.appendChild(dot);
+    }
+}
+
+// Move slider
+function moveSlider(direction) {
+    currentSlide += direction;
+    
+    if (currentSlide >= totalSlides) {
+        currentSlide = 0;
+    } else if (currentSlide < 0) {
+        currentSlide = totalSlides - 1;
+    }
+    
+    updateSlider();
+}
+
+// Go to specific slide
+function goToSlide(slideIndex) {
+    currentSlide = slideIndex;
+    updateSlider();
+}
+
+// Update slider display
+function updateSlider() {
+    // Update slides
+    slides.forEach((slide, index) => {
+        slide.classList.toggle('active', index === currentSlide);
+    });
+    
+    // Update dots
+    const dots = document.querySelectorAll('.dot');
+    dots.forEach((dot, index) => {
+        dot.classList.toggle('active', index === currentSlide);
+    });
+}
+
+// Auto-advance slider
+function autoAdvance() {
+    moveSlider(1);
+}
+
+// Initialize slider
+document.addEventListener('DOMContentLoaded', function() {
+    if (totalSlides > 0) {
+        generateDots();
+        
+        // Auto-advance every 5 seconds
+        setInterval(autoAdvance, 5000);
+        
+        // Pause auto-advance on hover
+        const slider = document.getElementById('collection-slider');
+        let autoAdvanceInterval;
+        
+        slider.addEventListener('mouseenter', () => {
+            clearInterval(autoAdvanceInterval);
+        });
+        
+        slider.addEventListener('mouseleave', () => {
+            autoAdvanceInterval = setInterval(autoAdvance, 5000);
+        });
+    }
+});
+</script>

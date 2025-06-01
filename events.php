@@ -32,7 +32,7 @@ include 'includes/header.php';
         <div class="calendar-header">
             <div class="month-selection">
                 <button class="prev-month" aria-label="Previous month"><i class="fas fa-chevron-left"></i></button>
-                <h2 id="current-month">June 2024</h2>
+                <h2 id="current-month"><?php echo date('F Y'); ?></h2>
                 <button class="next-month" aria-label="Next month"><i class="fas fa-chevron-right"></i></button>
             </div>
             <div class="calendar-filters">
@@ -66,39 +66,87 @@ include 'includes/header.php';
         </div>
 
         <div class="event-list">
-            <h3>Events for June 15, 2024</h3>
+            <h3>Today's Events - <?php echo date('F j, Y'); ?></h3>
             <div class="events-container" id="events-container">
-                <?php if (!empty($all_events)): ?>
-                    <?php foreach (array_slice($all_events, 0, 3) as $event): ?>
+                <?php 
+                // Get today's events
+                $today = date('Y-m-d');
+                $today_events = [];
+                
+                if (!empty($all_events)) {
+                    foreach ($all_events as $event) {
+                        if (date('Y-m-d', strtotime($event['event_date'])) == $today) {
+                            $today_events[] = $event;
+                        }
+                    }
+                }
+                
+                if (!empty($today_events)): ?>
+                    <?php foreach ($today_events as $event): ?>
                         <div class="event-item" data-type="<?php echo htmlspecialchars($event['event_type'] ?? 'general'); ?>">
                             <div class="event-time"><?php echo date('g:i A', strtotime($event['start_time'])); ?> - <?php echo date('g:i A', strtotime($event['end_time'])); ?></div>
                             <div class="event-details">
                                 <h4><?php echo htmlspecialchars($event['title']); ?></h4>
-                                <p class="event-location"><?php echo htmlspecialchars($event['location']); ?></p>
-                                <p><?php echo htmlspecialchars(substr($event['description'], 0, 100)); ?>...</p>
-                                <a href="event-detail.php?id=<?php echo $event['id']; ?>" class="btn btn-secondary">Reserve Spot</a>
+                                <p class="event-location"><i class="fas fa-map-marker-alt"></i> <?php echo htmlspecialchars($event['location']); ?></p>
+                                <p><?php echo htmlspecialchars(substr($event['description'], 0, 150)); ?>...</p>
+                                <a href="event-detail.php?id=<?php echo $event['id']; ?>" class="btn btn-secondary">Learn More</a>
                             </div>
                         </div>
                     <?php endforeach; ?>
                 <?php else: ?>
-                    <div class="event-item" data-type="tour">
-                        <div class="event-time">2:00 PM - 3:30 PM</div>
-                        <div class="event-details">
-                            <h4>Guided Tour: Modern Masterpieces</h4>
-                            <p class="event-location">Main Gallery</p>
-                            <p>Join our expert curator for a guided tour of our Modern Masterpieces exhibition.</p>
-                            <a href="event-detail.php" class="btn btn-secondary">Reserve Spot</a>
-                        </div>
+                    <div class="no-events">
+                        <p>No events scheduled for today. Check out our upcoming events below!</p>
                     </div>
-                    <div class="event-item" data-type="workshop">
-                        <div class="event-time">10:00 AM - 12:00 PM</div>
-                        <div class="event-details">
-                            <h4>Family Workshop: Art Exploration</h4>
-                            <p class="event-location">Education Center</p>
-                            <p>A hands-on art workshop for families with children ages 5-12.</p>
-                            <a href="event-detail.php" class="btn btn-secondary">Reserve Spot</a>
+                    
+                    <!-- Show next few upcoming events -->
+                    <?php 
+                    $upcoming = [];
+                    if (!empty($all_events)) {
+                        foreach ($all_events as $event) {
+                            if (strtotime($event['event_date']) > time()) {
+                                $upcoming[] = $event;
+                            }
+                        }
+                        $upcoming = array_slice($upcoming, 0, 3);
+                    }
+                    
+                    if (!empty($upcoming)): ?>
+                        <h4>Upcoming Events</h4>
+                        <?php foreach ($upcoming as $event): ?>
+                            <div class="event-item" data-type="<?php echo htmlspecialchars($event['event_type'] ?? 'general'); ?>">
+                                <div class="event-date"><?php echo date('M j, Y', strtotime($event['event_date'])); ?></div>
+                                <div class="event-time"><?php echo date('g:i A', strtotime($event['start_time'])); ?> - <?php echo date('g:i A', strtotime($event['end_time'])); ?></div>
+                                <div class="event-details">
+                                    <h4><?php echo htmlspecialchars($event['title']); ?></h4>
+                                    <p class="event-location"><i class="fas fa-map-marker-alt"></i> <?php echo htmlspecialchars($event['location']); ?></p>
+                                    <p><?php echo htmlspecialchars(substr($event['description'], 0, 150)); ?>...</p>
+                                    <a href="event-detail.php?id=<?php echo $event['id']; ?>" class="btn btn-secondary">Learn More</a>
+                                </div>
+                            </div>
+                        <?php endforeach; ?>
+                    <?php else: ?>
+                        <!-- Fallback sample events -->
+                        <div class="event-item" data-type="tour">
+                            <div class="event-date"><?php echo date('M j, Y', strtotime('+3 days')); ?></div>
+                            <div class="event-time">2:00 PM - 3:30 PM</div>
+                            <div class="event-details">
+                                <h4>Guided Tour: Modern Masterpieces</h4>
+                                <p class="event-location"><i class="fas fa-map-marker-alt"></i> Main Gallery</p>
+                                <p>Join our expert curator for a guided tour of our Modern Masterpieces exhibition featuring works from the 20th century.</p>
+                                <a href="event-detail.php" class="btn btn-secondary">Learn More</a>
+                            </div>
                         </div>
-                    </div>
+                        <div class="event-item" data-type="workshop">
+                            <div class="event-date"><?php echo date('M j, Y', strtotime('+5 days')); ?></div>
+                            <div class="event-time">10:00 AM - 12:00 PM</div>
+                            <div class="event-details">
+                                <h4>Family Workshop: Art Exploration</h4>
+                                <p class="event-location"><i class="fas fa-map-marker-alt"></i> Education Center</p>
+                                <p>A hands-on art workshop for families with children ages 5-12. Create your own masterpiece!</p>
+                                <a href="event-detail.php" class="btn btn-secondary">Learn More</a>
+                            </div>
+                        </div>
+                    <?php endif; ?>
                 <?php endif; ?>
             </div>
         </div>
@@ -164,5 +212,8 @@ include 'includes/header.php';
         </div>
     </div>
 </section>
+
+<script src="js/main.js"></script>
+<script src="js/events-calendar.js"></script>
 
 <?php include 'includes/footer.php'; ?>

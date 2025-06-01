@@ -39,6 +39,7 @@ $theme = isset($_COOKIE['theme']) ? $_COOKIE['theme'] : 'light-theme';
                         <li><a href="collections.php" <?php echo $current_page == 'collections.php' ? 'class="active"' : ''; ?>>Collections</a></li>
                         <li><a href="virtual-tours.php" <?php echo $current_page == 'virtual-tours.php' ? 'class="active"' : ''; ?>>Virtual Tours</a></li>
                         <li><a href="visit.php" <?php echo $current_page == 'visit.php' ? 'class="active"' : ''; ?>>Visit</a></li>
+                        <li><a href="membership.php" <?php echo $current_page == 'membership.php' ? 'class="active"' : ''; ?>>Membership</a></li>
                         <li><a href="about.php" <?php echo $current_page == 'about.php' ? 'class="active"' : ''; ?>>About</a></li>
                         <li><a href="contact.php" <?php echo $current_page == 'contact.php' ? 'class="active"' : ''; ?>>Contact</a></li>
                     </ul>
@@ -80,3 +81,5 @@ $theme = isset($_COOKIE['theme']) ? $_COOKIE['theme'] : 'light-theme';
             </button>
         </div>
     </div>
+
+</existing_code>
