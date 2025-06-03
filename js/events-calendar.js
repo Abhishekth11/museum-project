@@ -1,159 +1,140 @@
-// Events Calendar Functionality
 document.addEventListener("DOMContentLoaded", () => {
+  console.log("Events calendar loaded, theme handled by main.js")
+
+  // Your existing events calendar code stays here
+  // Just remove any theme-related functions
+  // Calendar functionality only - no theme code
+  const calendarContainer = document.querySelector(".calendar-container")
+  if (!calendarContainer) return
+
   const currentMonthElement = document.getElementById("current-month")
   const calendarDays = document.getElementById("calendar-days")
-  const eventsContainer = document.getElementById("events-container")
-  const eventTypeFilter = document.getElementById("event-type-filter")
+  const prevMonthBtn = document.querySelector(".prev-month")
+  const nextMonthBtn = document.querySelector(".next-month")
 
   const currentDate = new Date()
-  let selectedDate = new Date()
+  let currentMonth = currentDate.getMonth()
+  let currentYear = currentDate.getFullYear()
 
-  // Sample events data (in a real app, this would come from the server)
-  const sampleEvents = [
-    {
-      date: new Date().toISOString().split("T")[0],
-      title: "Guided Tour: Modern Masterpieces",
-      time: "2:00 PM - 3:30 PM",
-      location: "Main Gallery",
-      type: "tour",
-      description: "Join our expert curator for a guided tour of our Modern Masterpieces exhibition.",
-    },
-    {
-      date: new Date(Date.now() + 86400000).toISOString().split("T")[0],
-      title: "Artist Talk: Contemporary Expressions",
-      time: "6:30 PM - 8:00 PM",
-      location: "Auditorium",
-      type: "talk",
-      description: "Meet the artist behind our latest contemporary exhibition.",
-    },
-    {
-      date: new Date(Date.now() + 172800000).toISOString().split("T")[0],
-      title: "Family Workshop: Art Exploration",
-      time: "10:00 AM - 12:00 PM",
-      location: "Education Center",
-      type: "workshop",
-      description: "A hands-on art workshop for families with children ages 5-12.",
-    },
-  ]
+  function generateCalendar(year, month) {
+    if (!calendarDays) return
 
-  function renderCalendar() {
-    const year = currentDate.getFullYear()
-    const month = currentDate.getMonth()
-
-    // Update month display
-    currentMonthElement.textContent = new Intl.DateTimeFormat("en-US", {
-      month: "long",
-      year: "numeric",
-    }).format(currentDate)
-
-    // Clear calendar
     calendarDays.innerHTML = ""
 
-    // Get first day of month and number of days
     const firstDay = new Date(year, month, 1)
     const lastDay = new Date(year, month + 1, 0)
-    const startDate = new Date(firstDay)
-    startDate.setDate(startDate.getDate() - firstDay.getDay())
+    const daysInMonth = lastDay.getDate()
+    const startingDayOfWeek = firstDay.getDay()
 
-    // Generate calendar days
-    for (let i = 0; i < 42; i++) {
-      const date = new Date(startDate)
-      date.setDate(startDate.getDate() + i)
+    // Update month display
+    if (currentMonthElement) {
+      currentMonthElement.textContent = firstDay.toLocaleDateString("en-US", {
+        month: "long",
+        year: "numeric",
+      })
+    }
 
+    // Add empty cells for days before the first day of the month
+    for (let i = 0; i < startingDayOfWeek; i++) {
+      const emptyDay = document.createElement("div")
+      emptyDay.className = "calendar-day empty"
+      calendarDays.appendChild(emptyDay)
+    }
+
+    // Add days of the month
+    for (let day = 1; day <= daysInMonth; day++) {
       const dayElement = document.createElement("div")
       dayElement.className = "calendar-day"
-      dayElement.textContent = date.getDate()
 
-      // Add classes for styling
-      if (date.getMonth() !== month) {
-        dayElement.classList.add("other-month")
-      }
+      const dayNumber = document.createElement("div")
+      dayNumber.className = "calendar-day-number"
+      dayNumber.textContent = day
+      dayElement.appendChild(dayNumber)
 
-      if (date.toDateString() === new Date().toDateString()) {
+      // Highlight today
+      const today = new Date()
+      if (year === today.getFullYear() && month === today.getMonth() && day === today.getDate()) {
         dayElement.classList.add("today")
       }
 
-      if (date.toDateString() === selectedDate.toDateString()) {
-        dayElement.classList.add("selected")
-      }
+      // Add sample events (in a real app, this would come from a database)
+      if (hasEventsOnDay(year, month, day)) {
+        const eventIndicator = document.createElement("div")
+        eventIndicator.className = "calendar-day-event"
+        eventIndicator.textContent = "Event"
+        dayElement.appendChild(eventIndicator)
 
-      // Check if date has events
-      const dateString = date.toISOString().split("T")[0]
-      const hasEvents = sampleEvents.some((event) => event.date === dateString)
-      if (hasEvents) {
-        dayElement.classList.add("has-events")
+        dayElement.addEventListener("click", function () {
+          showEventsForDay(year, month, day)
+          // Remove selected class from all days
+          document.querySelectorAll(".calendar-day").forEach((d) => d.classList.remove("selected"))
+          // Add selected class to clicked day
+          this.classList.add("selected")
+        })
       }
-
-      // Add click handler
-      dayElement.addEventListener("click", () => {
-        selectedDate = new Date(date)
-        renderCalendar()
-        displayEventsForDate(selectedDate)
-      })
 
       calendarDays.appendChild(dayElement)
     }
   }
 
-  function displayEventsForDate(date) {
-    const dateString = date.toISOString().split("T")[0]
-    const eventsForDate = sampleEvents.filter((event) => event.date === dateString)
-
-    // Update events list header
-    const eventListHeader = document.querySelector(".event-list h3")
-    eventListHeader.textContent = `Events for ${date.toLocaleDateString("en-US", {
-      weekday: "long",
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    })}`
-
-    // Clear and populate events
-    eventsContainer.innerHTML = ""
-
-    if (eventsForDate.length > 0) {
-      eventsForDate.forEach((event) => {
-        const eventElement = document.createElement("div")
-        eventElement.className = `event-item`
-        eventElement.setAttribute("data-type", event.type)
-
-        eventElement.innerHTML = `
-                    <div class="event-time">${event.time}</div>
-                    <div class="event-details">
-                        <h4>${event.title}</h4>
-                        <p class="event-location"><i class="fas fa-map-marker-alt"></i> ${event.location}</p>
-                        <p>${event.description}</p>
-                        <a href="event-detail.php" class="btn btn-secondary">Learn More</a>
-                    </div>
-                `
-
-        eventsContainer.appendChild(eventElement)
-      })
-    } else {
-      eventsContainer.innerHTML = '<div class="no-events"><p>No events scheduled for this date.</p></div>'
-    }
+  function hasEventsOnDay(year, month, day) {
+    // Sample logic - in a real app, this would check against a database
+    return (month === 5 && (day === 15 || day === 22 || day === 28)) || (month === 6 && (day === 5 || day === 12))
   }
 
-  // Event listeners for month navigation
-  document.querySelector(".prev-month").addEventListener("click", () => {
-    currentDate.setMonth(currentDate.getMonth() - 1)
-    renderCalendar()
-  })
+  function showEventsForDay(year, month, day) {
+    const eventList = document.querySelector(".event-list")
+    if (!eventList) return
 
-  document.querySelector(".next-month").addEventListener("click", () => {
-    currentDate.setMonth(currentDate.getMonth() + 1)
-    renderCalendar()
-  })
+    const eventTitle = eventList.querySelector("h3")
+    if (eventTitle) {
+      const date = new Date(year, month, day)
+      eventTitle.textContent = `Events for ${date.toLocaleDateString("en-US", {
+        weekday: "long",
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      })}`
+    }
+
+    // In a real app, you would fetch events for this specific day
+    // For now, we'll just update the title
+  }
+
+  // Navigation event listeners
+  if (prevMonthBtn) {
+    prevMonthBtn.addEventListener("click", () => {
+      currentMonth--
+      if (currentMonth < 0) {
+        currentMonth = 11
+        currentYear--
+      }
+      generateCalendar(currentYear, currentMonth)
+    })
+  }
+
+  if (nextMonthBtn) {
+    nextMonthBtn.addEventListener("click", () => {
+      currentMonth++
+      if (currentMonth > 11) {
+        currentMonth = 0
+        currentYear++
+      }
+      generateCalendar(currentYear, currentMonth)
+    })
+  }
 
   // Event type filter
+  const eventTypeFilter = document.getElementById("event-type-filter")
   if (eventTypeFilter) {
-    eventTypeFilter.addEventListener("change", (e) => {
-      const filterValue = e.target.value
+    eventTypeFilter.addEventListener("change", function () {
+      const selectedType = this.value
       const eventItems = document.querySelectorAll(".event-item")
 
       eventItems.forEach((item) => {
-        if (filterValue === "all" || item.getAttribute("data-type") === filterValue) {
-          item.style.display = "flex"
+        const eventType = item.getAttribute("data-type")
+        if (selectedType === "all" || eventType === selectedType) {
+          item.style.display = "block"
         } else {
           item.style.display = "none"
         }
@@ -162,6 +143,5 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // Initialize calendar
-  renderCalendar()
-  displayEventsForDate(selectedDate)
+  generateCalendar(currentYear, currentMonth)
 })

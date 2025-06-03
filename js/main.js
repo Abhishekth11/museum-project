@@ -1,27 +1,210 @@
-document.addEventListener("DOMContentLoaded", () => {
-  // Theme toggle functionality
-  const themeToggleBtn = document.querySelector(".theme-toggle")
-  const htmlElement = document.documentElement
-  const storedTheme = localStorage.getItem("theme") || "light-theme"
+// Global theme management system
+window.ThemeManager = (() => {
+  let isInitialized = false
+  let currentTheme = "light-theme"
 
-  // Set initial theme from localStorage
-  document.body.className = storedTheme
+  // Debug logging
+  function log(message) {
+    if (window.location.search.includes("debug=theme")) {
+      console.log("[ThemeManager]", message)
+    }
+  }
 
-  themeToggleBtn.addEventListener("click", () => {
-    if (document.body.classList.contains("light-theme")) {
-      document.body.classList.remove("light-theme")
-      document.body.classList.add("dark-theme")
-      localStorage.setItem("theme", "dark-theme")
-      // Set cookie for server-side theme detection
-      document.cookie = "theme=dark-theme; path=/; max-age=31536000"
+  // Get theme from storage
+  function getStoredTheme() {
+    // Priority: localStorage > cookie > default
+    let theme = localStorage.getItem("theme")
+    if (!theme) {
+      const cookieMatch = document.cookie.match(/theme=([^;]+)/)
+      theme = cookieMatch ? cookieMatch[1] : "light-theme"
+    }
+    return ["light-theme", "dark-theme"].includes(theme) ? theme : "light-theme"
+  }
+
+  // Save theme to storage
+  function saveTheme(theme) {
+    localStorage.setItem("theme", theme)
+    document.cookie = `theme=${theme}; path=/; max-age=31536000; SameSite=Lax`
+    log(`Theme saved: ${theme}`)
+  }
+
+  // Apply theme to DOM
+  function applyTheme(theme) {
+    log(`Applying theme: ${theme}`)
+
+    // Remove existing theme classes
+    document.body.classList.remove("light-theme", "dark-theme")
+    document.documentElement.classList.remove("light-theme", "dark-theme")
+
+    // Add new theme class
+    document.body.classList.add(theme)
+    document.documentElement.classList.add(theme)
+    document.documentElement.setAttribute("data-theme", theme)
+
+    currentTheme = theme
+    updateToggleButton()
+
+    // Dispatch event for other components
+    window.dispatchEvent(
+      new CustomEvent("themeChanged", {
+        detail: { theme: theme },
+      }),
+    )
+  }
+
+  // Update toggle button icons
+  function updateToggleButton() {
+    const toggleBtn = document.querySelector("[data-theme-toggle]")
+    if (!toggleBtn) {
+      log("Toggle button not found")
+      return
+    }
+
+    const sunIcon = toggleBtn.querySelector(".fa-sun")
+    const moonIcon = toggleBtn.querySelector(".fa-moon")
+
+    if (sunIcon && moonIcon) {
+      if (currentTheme === "dark-theme") {
+        sunIcon.style.display = "inline-block"
+        moonIcon.style.display = "none"
+      } else {
+        sunIcon.style.display = "none"
+        moonIcon.style.display = "inline-block"
+      }
+      log(`Icons updated for ${currentTheme}`)
+    }
+  }
+
+  // Toggle theme
+  function toggleTheme() {
+    const newTheme = currentTheme === "light-theme" ? "dark-theme" : "light-theme"
+    log(`Toggling from ${currentTheme} to ${newTheme}`)
+    applyTheme(newTheme)
+    saveTheme(newTheme)
+  }
+
+  // Initialize theme system
+  function init() {
+    if (isInitialized) {
+      log("Already initialized")
+      return
+    }
+
+    log("Initializing theme system...")
+
+    // Get and apply stored theme
+    currentTheme = getStoredTheme()
+    applyTheme(currentTheme)
+
+    // Set up toggle button
+    const toggleBtn = document.querySelector("[data-theme-toggle]")
+    if (toggleBtn) {
+      // Remove existing listeners
+      const newToggleBtn = toggleBtn.cloneNode(true)
+      toggleBtn.parentNode.replaceChild(newToggleBtn, toggleBtn)
+
+      // Add new listener
+      newToggleBtn.addEventListener("click", (e) => {
+        e.preventDefault()
+        e.stopPropagation()
+        toggleTheme()
+      })
+
+      log("Toggle button initialized")
     } else {
-      document.body.classList.remove("dark-theme")
-      document.body.classList.add("light-theme")
-      localStorage.setItem("theme", "light-theme")
-      // Set cookie for server-side theme detection
-      document.cookie = "theme=light-theme; path=/; max-age=31536000"
+      log("ERROR: Toggle button not found!")
+    }
+
+    // Listen for storage changes from other tabs
+    window.addEventListener("storage", (e) => {
+      if (e.key === "theme" && e.newValue) {
+        log(`Storage change detected: ${e.newValue}`)
+        applyTheme(e.newValue)
+      }
+    })
+
+    isInitialized = true
+    log("Theme system initialized successfully")
+  }
+
+  // Public API
+  return {
+    init: init,
+    toggle: toggleTheme,
+    apply: applyTheme,
+    getCurrent: () => currentTheme,
+    isInitialized: () => isInitialized,
+  }
+})()
+
+// Initialize immediately when DOM is ready
+document.addEventListener("DOMContentLoaded", () => {
+  console.log("DOM loaded, initializing theme...")
+  window.ThemeManager.init()
+})
+
+// Fallback initialization for pages that might load scripts differently
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", () => {
+    if (!window.ThemeManager.isInitialized()) {
+      console.log("Fallback theme initialization")
+      window.ThemeManager.init()
     }
   })
+} else {
+  // DOM already loaded
+  if (!window.ThemeManager.isInitialized()) {
+    console.log("Immediate theme initialization")
+    window.ThemeManager.init()
+  }
+}
+
+// Rest of main.js functionality
+document.addEventListener("DOMContentLoaded", () => {
+  // Simple theme toggle functionality
+  const themeToggleBtn = document.querySelector(".theme-toggle")
+
+  if (themeToggleBtn) {
+    // Get current theme from body class or default to light
+    let currentTheme = document.body.classList.contains("dark-theme") ? "dark-theme" : "light-theme"
+
+    // Update icons based on current theme
+    updateThemeIcons(currentTheme)
+
+    themeToggleBtn.addEventListener("click", () => {
+      // Toggle theme
+      if (currentTheme === "light-theme") {
+        currentTheme = "dark-theme"
+        document.body.className = "dark-theme"
+      } else {
+        currentTheme = "light-theme"
+        document.body.className = "light-theme"
+      }
+
+      // Update icons
+      updateThemeIcons(currentTheme)
+
+      // Save to cookie
+      document.cookie = `theme=${currentTheme}; path=/; max-age=31536000`
+
+      console.log("Theme changed to:", currentTheme)
+    })
+  }
+
+  function updateThemeIcons(theme) {
+    const sunIcon = document.querySelector(".theme-toggle .fa-sun")
+    const moonIcon = document.querySelector(".theme-toggle .fa-moon")
+
+    if (sunIcon && moonIcon) {
+      if (theme === "dark-theme") {
+        sunIcon.style.display = "inline-block"
+        moonIcon.style.display = "none"
+      } else {
+        sunIcon.style.display = "none"
+        moonIcon.style.display = "inline-block"
+      }
+    }
+  }
 
   // Mobile menu functionality
   const menuToggleBtn = document.querySelector(".menu-toggle")
@@ -313,3 +496,19 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 })
+
+// Legacy function support for backward compatibility
+function initializeTheme() {
+  console.log("Legacy initializeTheme called, delegating to ThemeManager")
+  window.ThemeManager.init()
+}
+
+function toggleTheme() {
+  console.log("Legacy toggleTheme called, delegating to ThemeManager")
+  window.ThemeManager.toggle()
+}
+
+function applyTheme(theme) {
+  console.log("Legacy applyTheme called, delegating to ThemeManager")
+  window.ThemeManager.apply(theme)
+}

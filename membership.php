@@ -10,46 +10,36 @@ $message_type = '';
 
 // Handle membership signup
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['join_membership'])) {
-    $first_name = trim($_POST['first_name'] ?? '');
-    $last_name = trim($_POST['last_name'] ?? '');
-    $email = trim($_POST['email'] ?? '');
-    $phone = trim($_POST['phone'] ?? '');
-    $membership_type = $_POST['membership_type'] ?? '';
+    // Check if user is logged in
+    if (!isLoggedIn()) {
+        $_SESSION['redirect_url'] = 'membership.php';
+        header('Location: login.php');
+        exit;
+    }
     
-    if (!empty($first_name) && !empty($last_name) && !empty($email) && !empty($membership_type)) {
-        try {
-            // Check if user already exists
-            $stmt = $pdo->prepare("SELECT id FROM users WHERE email = ?");
-            $stmt->execute([$email]);
-            $existing_user = $stmt->fetch();
+    // Verify CSRF token
+    if (!verifyCSRFToken($_POST['csrf_token'] ?? '')) {
+        $message = 'Invalid security token. Please try again.';
+        $message_type = 'error';
+    } else {
+        $membership_type = $_POST['membership_type'] ?? '';
+        
+        if (!empty($membership_type)) {
+            // Get current user data
+            $user_data = getUserById($_SESSION['user_id']);
             
-            if ($existing_user) {
-                $user_id = $existing_user['id'];
+            if ($user_data) {
+                $result = joinMembership($user_data, $membership_type);
+                $message = $result['message'];
+                $message_type = $result['success'] ? 'success' : 'error';
             } else {
-                // Create new user account
-                $password = password_hash(bin2hex(random_bytes(8)), PASSWORD_DEFAULT);
-                $stmt = $pdo->prepare("INSERT INTO users (first_name, last_name, email, password, role) VALUES (?, ?, ?, ?, 'member')");
-                $stmt->execute([$first_name, $last_name, $email, $password]);
-                $user_id = $pdo->lastInsertId();
+                $message = 'User data not found. Please try logging in again.';
+                $message_type = 'error';
             }
-            
-            // Create membership
-            $start_date = date('Y-m-d');
-            $end_date = date('Y-m-d', strtotime('+1 year'));
-            
-            $stmt = $pdo->prepare("INSERT INTO memberships (user_id, membership_type, start_date, end_date, status) VALUES (?, ?, ?, ?, 'active')");
-            $stmt->execute([$user_id, $membership_type, $start_date, $end_date]);
-            
-            $message = 'Thank you for joining! Your membership application has been submitted. You will receive a confirmation email shortly.';
-            $message_type = 'success';
-            
-        } catch(PDOException $e) {
-            $message = 'An error occurred while processing your membership. Please try again.';
+        } else {
+            $message = 'Please select a membership type.';
             $message_type = 'error';
         }
-    } else {
-        $message = 'Please fill in all required fields.';
-        $message_type = 'error';
     }
 }
 
@@ -218,55 +208,50 @@ include 'includes/header.php';
             </div>
         <?php endif; ?>
         
-        <form method="POST" class="membership-form">
-            <input type="hidden" name="membership_type" id="membership-type-input">
-            
-            <div class="form-row">
+        <?php if (isLoggedIn()): ?>
+            <form method="POST" class="membership-form">
+                <input type="hidden" name="csrf_token" value="<?php echo generateCSRFToken(); ?>">
+                <input type="hidden" name="membership_type" id="membership-type-input">
+                
+                <div class="user-info">
+                    <h3>Your Information</h3>
+                    <p><strong>Name:</strong> <?php echo htmlspecialchars($_SESSION['user_name']); ?></p>
+                    <p><strong>Email:</strong> <?php echo htmlspecialchars(getUserById($_SESSION['user_id'])['email'] ?? ''); ?></p>
+                </div>
+                
+                <div class="membership-summary">
+                    <h3>Membership Summary</h3>
+                    <div class="summary-item">
+                        <span>Membership Type:</span>
+                        <span id="summary-type"></span>
+                    </div>
+                    <div class="summary-item">
+                        <span>Annual Fee:</span>
+                        <span id="summary-price"></span>
+                    </div>
+                    <div class="summary-item">
+                        <span>Valid Until:</span>
+                        <span><?php echo date('F j, Y', strtotime('+1 year')); ?></span>
+                    </div>
+                </div>
+                
                 <div class="form-group">
-                    <label for="first_name">First Name *</label>
-                    <input type="text" id="first_name" name="first_name" required>
+                    <label>
+                        <input type="checkbox" required>
+                        I agree to the <a href="terms.php" target="_blank">Terms and Conditions</a> and <a href="privacy.php" target="_blank">Privacy Policy</a>
+                    </label>
                 </div>
-                <div class="form-group">
-                    <label for="last_name">Last Name *</label>
-                    <input type="text" id="last_name" name="last_name" required>
-                </div>
+                
+                <button type="submit" name="join_membership" class="btn btn-primary btn-block">Complete Membership</button>
+            </form>
+        <?php else: ?>
+            <div class="login-required">
+                <h3>Login Required</h3>
+                <p>Please log in to your account to join as a member.</p>
+                <a href="login.php" class="btn btn-primary">Login</a>
+                <p>Don't have an account? <a href="login.php?register=1">Create one here</a></p>
             </div>
-            
-            <div class="form-group">
-                <label for="email">Email Address *</label>
-                <input type="email" id="email" name="email" required>
-            </div>
-            
-            <div class="form-group">
-                <label for="phone">Phone Number</label>
-                <input type="tel" id="phone" name="phone">
-            </div>
-            
-            <div class="membership-summary">
-                <h3>Membership Summary</h3>
-                <div class="summary-item">
-                    <span>Membership Type:</span>
-                    <span id="summary-type"></span>
-                </div>
-                <div class="summary-item">
-                    <span>Annual Fee:</span>
-                    <span id="summary-price"></span>
-                </div>
-                <div class="summary-item">
-                    <span>Valid Until:</span>
-                    <span><?php echo date('F j, Y', strtotime('+1 year')); ?></span>
-                </div>
-            </div>
-            
-            <div class="form-group">
-                <label>
-                    <input type="checkbox" required>
-                    I agree to the <a href="terms.php" target="_blank">Terms and Conditions</a> and <a href="privacy.php" target="_blank">Privacy Policy</a>
-                </label>
-            </div>
-            
-            <button type="submit" name="join_membership" class="btn btn-primary btn-block">Complete Membership</button>
-        </form>
+        <?php endif; ?>
     </div>
 </div>
 
@@ -311,10 +296,11 @@ include 'includes/header.php';
     color: var(--text-secondary);
 }
 
-.membership-form .form-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 2rem;
+.user-info {
+    background: var(--background-alt);
+    padding: 2rem;
+    border-radius: var(--border-radius);
+    margin: 2rem 0;
 }
 
 .membership-summary {
@@ -343,11 +329,30 @@ include 'includes/header.php';
     font-size: 1.8rem;
 }
 
+.login-required {
+    text-align: center;
+    padding: 2rem;
+}
+
+.message {
+    padding: 1rem;
+    border-radius: var(--border-radius);
+    margin-bottom: 2rem;
+}
+
+.message.success {
+    background: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.message.error {
+    background: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
 @media (max-width: 768px) {
-    .membership-form .form-row {
-        grid-template-columns: 1fr;
-    }
-    
     .modal-content {
         width: 95%;
         padding: 2rem;
@@ -373,6 +378,19 @@ document.getElementById('membership-modal').addEventListener('click', function(e
     if (e.target === this) {
         closeMembershipModal();
     }
+});
+
+// Auto-hide success/error messages after 5 seconds
+document.addEventListener('DOMContentLoaded', function() {
+    const messages = document.querySelectorAll('.message');
+    messages.forEach(message => {
+        setTimeout(() => {
+            message.style.opacity = '0';
+            setTimeout(() => {
+                message.remove();
+            }, 300);
+        }, 5000);
+    });
 });
 </script>
 

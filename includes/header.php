@@ -2,7 +2,7 @@
 // Get current page for active menu highlighting
 $current_page = basename($_SERVER['PHP_SELF']);
 
-// Theme handling
+// Simple theme handling
 $theme = isset($_COOKIE['theme']) ? $_COOKIE['theme'] : 'light-theme';
 ?>
 <!DOCTYPE html>
@@ -81,5 +81,5 @@ $theme = isset($_COOKIE['theme']) ? $_COOKIE['theme'] : 'light-theme';
             </button>
         </div>
     </div>
-
-</existing_code>
+</body>
+</html>

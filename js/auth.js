@@ -1,4 +1,4 @@
-// Enhanced Authentication JavaScript
+// Enhanced Authentication JavaScript - THEME CODE COMPLETELY REMOVED
 class AuthManager {
   constructor() {
     this.initializeEventListeners()
@@ -20,21 +20,15 @@ class AuthManager {
         this.setupRegisterForm(registerForm)
       }
 
-      // Initialize tab switching
       this.setupTabSwitching()
     })
   }
 
   setupLoginForm(form) {
     form.addEventListener("submit", async (e) => {
-      // Don't prevent default - let the form submit normally for now
-      // This ensures the PHP processing works
       const submitBtn = form.querySelector('button[type="submit"]')
-
-      // Add loading state
       this.setLoadingState(submitBtn, true)
 
-      // Reset loading state after a short delay to allow form submission
       setTimeout(() => {
         this.setLoadingState(submitBtn, false)
       }, 1000)
@@ -43,18 +37,14 @@ class AuthManager {
 
   setupRegisterForm(form) {
     form.addEventListener("submit", async (e) => {
-      // Client-side validation
       if (!this.validateRegistrationForm(form)) {
         e.preventDefault()
         return
       }
 
       const submitBtn = form.querySelector('button[type="submit"]')
-
-      // Add loading state
       this.setLoadingState(submitBtn, true)
 
-      // Reset loading state after a short delay to allow form submission
       setTimeout(() => {
         this.setLoadingState(submitBtn, false)
       }, 1000)
@@ -71,7 +61,6 @@ class AuthManager {
       })
     })
 
-    // Handle URL hash for direct tab access
     const hash = window.location.hash.substring(1)
     if (hash === "register") {
       this.switchTab("register")
@@ -79,7 +68,6 @@ class AuthManager {
   }
 
   switchTab(tabName) {
-    // Update tabs
     document.querySelectorAll(".auth-tab").forEach((tab) => {
       tab.classList.remove("active")
     })
@@ -88,7 +76,6 @@ class AuthManager {
       activeTab.classList.add("active")
     }
 
-    // Update panels
     document.querySelectorAll(".auth-panel").forEach((panel) => {
       panel.classList.remove("active")
     })
@@ -97,29 +84,23 @@ class AuthManager {
       activePanel.classList.add("active")
     }
 
-    // Clear messages when switching tabs
     this.clearMessages()
-
-    // Update URL hash
     window.history.replaceState(null, null, `#${tabName}`)
   }
 
   initializeFormValidation() {
-    // Real-time validation for email fields
     const emailInputs = document.querySelectorAll('input[type="email"]')
     emailInputs.forEach((input) => {
       input.addEventListener("blur", () => this.validateEmail(input))
       input.addEventListener("input", () => this.clearFieldError(input))
     })
 
-    // Real-time validation for password fields
     const passwordInputs = document.querySelectorAll('input[type="password"]')
     passwordInputs.forEach((input) => {
       input.addEventListener("blur", () => this.validatePassword(input))
       input.addEventListener("input", () => this.clearFieldError(input))
     })
 
-    // Password confirmation validation
     const confirmPasswordInput = document.getElementById("confirm-password")
     const passwordInput = document.getElementById("register-password")
 
@@ -134,7 +115,6 @@ class AuthManager {
   }
 
   initializePasswordToggle() {
-    // Add password visibility toggle buttons
     const passwordFields = document.querySelectorAll('input[type="password"]')
 
     passwordFields.forEach((field) => {
@@ -148,17 +128,17 @@ class AuthManager {
       toggleBtn.type = "button"
       toggleBtn.innerHTML = "👁️"
       toggleBtn.style.cssText = `
-        position: absolute;
-        right: 12px;
-        top: 50%;
-        transform: translateY(-50%);
-        background: none;
-        border: none;
-        cursor: pointer;
-        font-size: 18px;
-        opacity: 0.6;
-        transition: opacity 0.3s;
-      `
+                position: absolute;
+                right: 12px;
+                top: 50%;
+                transform: translateY(-50%);
+                background: none;
+                border: none;
+                cursor: pointer;
+                font-size: 18px;
+                opacity: 0.6;
+                transition: opacity 0.3s;
+            `
 
       toggleBtn.addEventListener("click", () => {
         const type = field.getAttribute("type") === "password" ? "text" : "password"
@@ -182,7 +162,6 @@ class AuthManager {
     let isValid = true
     const formData = new FormData(form)
 
-    // Validate required fields
     const requiredFields = ["first_name", "last_name", "email", "password", "confirm_password"]
     requiredFields.forEach((fieldName) => {
       const field = form.querySelector(`[name="${fieldName}"]`)
@@ -192,19 +171,16 @@ class AuthManager {
       }
     })
 
-    // Validate email
     const emailField = form.querySelector('[name="email"]')
     if (!this.validateEmail(emailField)) {
       isValid = false
     }
 
-    // Validate password
     const passwordField = form.querySelector('[name="password"]')
     if (!this.validatePassword(passwordField)) {
       isValid = false
     }
 
-    // Validate password confirmation
     const confirmPasswordField = form.querySelector('[name="confirm_password"]')
     if (!this.validatePasswordConfirmation(passwordField, confirmPasswordField)) {
       isValid = false
@@ -262,13 +238,11 @@ class AuthManager {
     formGroup.classList.remove("success")
     formGroup.classList.add("error")
 
-    // Remove existing error message
     const existingError = formGroup.querySelector(".error-message")
     if (existingError) {
       existingError.remove()
     }
 
-    // Add new error message
     const errorDiv = document.createElement("div")
     errorDiv.className = "error-message"
     errorDiv.textContent = message
@@ -282,7 +256,6 @@ class AuthManager {
     formGroup.classList.remove("error")
     formGroup.classList.add("success")
 
-    // Remove error message
     const existingError = formGroup.querySelector(".error-message")
     if (existingError) {
       existingError.remove()
@@ -317,7 +290,6 @@ class AuthManager {
       activePanel.insertBefore(messageDiv, activePanel.firstChild)
     }
 
-    // Auto-remove success messages
     if (type === "success") {
       setTimeout(() => {
         if (messageDiv.parentNode) {
@@ -346,7 +318,6 @@ class AuthManager {
   }
 
   initializeTabSwitching() {
-    // Handle keyboard navigation for tabs
     const tabs = document.querySelectorAll(".auth-tab")
 
     tabs.forEach((tab, index) => {
@@ -373,6 +344,93 @@ new AuthManager()
 
 // Additional utility functions for enhanced UX
 document.addEventListener("DOMContentLoaded", () => {
+  // Password strength indicator
+  const passwordInput = document.getElementById("register-password")
+  if (passwordInput) {
+    passwordInput.addEventListener("input", function () {
+      const password = this.value
+      let strength = 0
+
+      if (password.length >= 8) strength += 1
+      if (/[a-z]/.test(password)) strength += 1
+      if (/[A-Z]/.test(password)) strength += 1
+      if (/[0-9]/.test(password)) strength += 1
+      if (/[^a-zA-Z0-9]/.test(password)) strength += 1
+
+      const small = document.createElement("small")
+      small.className = "password-strength"
+
+      const existingIndicator = this.parentNode.querySelector(".password-strength")
+      if (existingIndicator) {
+        this.parentNode.removeChild(existingIndicator)
+      }
+
+      if (password.length > 0) {
+        if (strength < 3) {
+          small.textContent = "Weak password"
+          small.style.color = "#e74c3c"
+        } else if (strength < 5) {
+          small.textContent = "Medium strength password"
+          small.style.color = "#f39c12"
+        } else {
+          small.textContent = "Strong password"
+          small.style.color = "#27ae60"
+        }
+
+        const existingSmall = this.parentNode.querySelector("small:not(.password-strength)")
+        if (existingSmall) {
+          this.parentNode.insertBefore(small, existingSmall.nextSibling)
+        } else {
+          this.parentNode.appendChild(small)
+        }
+      }
+    })
+  }
+
+  // Password confirmation validation
+  const confirmPasswordInput = document.getElementById("confirm-password")
+  const registerPasswordInput = document.getElementById("register-password")
+
+  if (confirmPasswordInput && registerPasswordInput) {
+    confirmPasswordInput.addEventListener("input", function () {
+      const password = registerPasswordInput.value
+      const confirmPassword = this.value
+
+      const existingMessage = this.parentNode.querySelector(".password-match")
+      if (existingMessage) {
+        this.parentNode.removeChild(existingMessage)
+      }
+
+      if (confirmPassword.length > 0) {
+        const small = document.createElement("small")
+        small.className = "password-match"
+
+        if (password === confirmPassword) {
+          small.textContent = "Passwords match"
+          small.style.color = "#27ae60"
+          this.setCustomValidity("")
+        } else {
+          small.textContent = "Passwords do not match"
+          small.style.color = "#e74c3c"
+          this.setCustomValidity("Passwords do not match")
+        }
+
+        this.parentNode.appendChild(small)
+      }
+    })
+  }
+
+  // Auto-hide alerts after 5 seconds
+  const alerts = document.querySelectorAll(".alert")
+  alerts.forEach((alert) => {
+    setTimeout(() => {
+      alert.style.opacity = "0"
+      setTimeout(() => {
+        alert.style.display = "none"
+      }, 500)
+    }, 5000)
+  })
+
   // Add smooth scrolling for better mobile experience
   if (window.innerWidth <= 768) {
     const authSection = document.querySelector(".auth-section")
@@ -380,15 +438,6 @@ document.addEventListener("DOMContentLoaded", () => {
       authSection.style.scrollBehavior = "smooth"
     }
   }
-
-  // Handle browser back/forward navigation
-  window.addEventListener("popstate", (e) => {
-    const hash = window.location.hash.substring(1)
-    if (hash === "register" || hash === "login") {
-      const authManager = new AuthManager()
-      authManager.switchTab(hash)
-    }
-  })
 
   // Prevent form submission on Enter in non-submit fields
   const inputs = document.querySelectorAll('.auth-form input:not([type="submit"])')
