@@ -870,3 +870,21 @@
 .modal-close:hover {
   color: #374151;
 }
+
+.admin-container {
+  display: flex;
+  flex-wrap: nowrap;
+}
+
+.col-3 {
+  flex: 0 0 25%;
+  max-width: 25%;
+  box-sizing: border-box;
+}
+
+.col-9 {
+  flex: 1;
+  max-width: 75%;
+  box-sizing: border-box;
+  overflow-x: auto;
+}

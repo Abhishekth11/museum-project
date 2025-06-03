@@ -139,7 +139,7 @@ function hasPermission($permission) {
     
     $role_permissions = [
         'admin' => [
-            'manage_users', 'manage_exhibitions', 'manage_events', 'manage_collections',
+            'manage_users','create_users', 'manage_exhibitions', 'manage_events', 'manage_collections',
             'view_analytics', 'manage_settings', 'backup_database', 'moderate_content',
             'delete_users', 'edit_users', 'create_events', 'edit_events', 'delete_events',
             'create_exhibitions', 'edit_exhibitions', 'delete_exhibitions'
