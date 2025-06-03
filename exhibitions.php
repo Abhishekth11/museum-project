@@ -56,7 +56,9 @@ include 'includes/header.php';
                 <?php foreach ($current_exhibitions as $exhibition): ?>
                     <div class="exhibition-card" data-category="<?php echo htmlspecialchars($exhibition['category']); ?>">
                         <div class="exhibition-image">
-                            <img src="<?php echo !empty($exhibition['image']) ? 'uploads/exhibitions/' . $exhibition['image'] : 'https://source.unsplash.com/random/600x400/?art'; ?>" alt="<?php echo htmlspecialchars($exhibition['title']); ?>">
+                            <img src="<?php echo getImageUrl($exhibition['image'], 'exhibition', $exhibition['category']); ?>" 
+                                 alt="<?php echo htmlspecialchars($exhibition['title']); ?>"
+                                 onerror="this.src='<?php echo getFallbackImage('exhibition', $exhibition['category']); ?>'">
                             <div class="exhibition-date">Until <?php echo formatDate($exhibition['end_date']); ?></div>
                         </div>
                         <div class="exhibition-details">
@@ -70,9 +72,9 @@ include 'includes/header.php';
                     </div>
                 <?php endforeach; ?>
             <?php else: ?>
-                <div class="exhibition-card" data-category="painting sculpture">
+                <div class="exhibition-card" data-category="modern art">
                     <div class="exhibition-image">
-                        <img src="https://source.unsplash.com/random/600x400/?art" alt="Modern Masterpieces exhibition">
+                        <img src="<?php echo getFallbackImage('exhibition', 'modern art'); ?>" alt="Modern Masterpieces exhibition">
                         <div class="exhibition-date">Until August 15, 2024</div>
                     </div>
                     <div class="exhibition-details">
@@ -80,15 +82,13 @@ include 'includes/header.php';
                         <p>Explore the evolution of modern art through a curated selection of masterpieces spanning the 20th century.</p>
                         <div class="tags">
                             <span>Modern Art</span>
-                            <span>Painting</span>
-                            <span>Sculpture</span>
                         </div>
                         <a href="#" class="btn btn-secondary">View Details</a>
                     </div>
                 </div>
-                <div class="exhibition-card" data-category="painting">
+                <div class="exhibition-card" data-category="renaissance">
                     <div class="exhibition-image">
-                        <img src="https://source.unsplash.com/random/600x400/?renaissance" alt="Renaissance Reimagined exhibition">
+                        <img src="<?php echo getFallbackImage('exhibition', 'renaissance'); ?>" alt="Renaissance Reimagined exhibition">
                         <div class="exhibition-date">Until July 30, 2024</div>
                     </div>
                     <div class="exhibition-details">
@@ -96,15 +96,13 @@ include 'includes/header.php';
                         <p>A fresh look at Renaissance art and its influence on contemporary artistic expression.</p>
                         <div class="tags">
                             <span>Renaissance</span>
-                            <span>Painting</span>
-                            <span>History</span>
                         </div>
                         <a href="#" class="btn btn-secondary">View Details</a>
                     </div>
                 </div>
-                <div class="exhibition-card" data-category="digital installation">
+                <div class="exhibition-card" data-category="digital art">
                     <div class="exhibition-image">
-                        <img src="https://source.unsplash.com/random/600x400/?digital-art" alt="Digital Frontiers exhibition">
+                        <img src="<?php echo getFallbackImage('exhibition', 'digital art'); ?>" alt="Digital Frontiers exhibition">
                         <div class="exhibition-date">Until September 5, 2024</div>
                     </div>
                     <div class="exhibition-details">
@@ -112,8 +110,6 @@ include 'includes/header.php';
                         <p>Exploring the intersection of art and technology in the digital age.</p>
                         <div class="tags">
                             <span>Digital Art</span>
-                            <span>Technology</span>
-                            <span>Interactive</span>
                         </div>
                         <a href="#" class="btn btn-secondary">View Details</a>
                     </div>
@@ -126,7 +122,9 @@ include 'includes/header.php';
                 <?php foreach ($upcoming_exhibitions as $exhibition): ?>
                     <div class="exhibition-card" data-category="<?php echo htmlspecialchars($exhibition['category']); ?>">
                         <div class="exhibition-image">
-                            <img src="<?php echo !empty($exhibition['image']) ? 'uploads/exhibitions/' . $exhibition['image'] : 'https://source.unsplash.com/random/600x400/?art'; ?>" alt="<?php echo htmlspecialchars($exhibition['title']); ?>">
+                            <img src="<?php echo getImageUrl($exhibition['image'], 'exhibition', $exhibition['category']); ?>" 
+                                 alt="<?php echo htmlspecialchars($exhibition['title']); ?>"
+                                 onerror="this.src='<?php echo getFallbackImage('exhibition', $exhibition['category']); ?>'">
                             <div class="exhibition-date"><?php echo formatDate($exhibition['start_date']); ?> - <?php echo formatDate($exhibition['end_date']); ?></div>
                         </div>
                         <div class="exhibition-details">
@@ -151,7 +149,9 @@ include 'includes/header.php';
                 <?php foreach ($past_exhibitions as $exhibition): ?>
                     <div class="exhibition-card" data-category="<?php echo htmlspecialchars($exhibition['category']); ?>">
                         <div class="exhibition-image">
-                            <img src="<?php echo !empty($exhibition['image']) ? 'uploads/exhibitions/' . $exhibition['image'] : 'https://source.unsplash.com/random/600x400/?art'; ?>" alt="<?php echo htmlspecialchars($exhibition['title']); ?>">
+                            <img src="<?php echo getImageUrl($exhibition['image'], 'exhibition', $exhibition['category']); ?>" 
+                                 alt="<?php echo htmlspecialchars($exhibition['title']); ?>"
+                                 onerror="this.src='<?php echo getFallbackImage('exhibition', $exhibition['category']); ?>'">
                             <div class="exhibition-date"><?php echo formatDate($exhibition['start_date']); ?> - <?php echo formatDate($exhibition['end_date']); ?></div>
                         </div>
                         <div class="exhibition-details">

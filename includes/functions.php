@@ -25,6 +25,132 @@ function isModerator() {
     return isset($_SESSION['user_role']) && in_array($_SESSION['user_role'], ['admin', 'moderator']);
 }
 
+// Enhanced image handling function
+function getImageUrl($imagePath, $type = 'general', $category = '') {
+    // If we have a database image path, check if file exists
+    if (!empty($imagePath)) {
+        $fullPath = '';
+        
+        // Determine the correct upload directory based on type
+        switch ($type) {
+            case 'exhibition':
+                $fullPath = 'uploads/exhibitions/' . $imagePath;
+                break;
+            case 'collection':
+                $fullPath = 'uploads/collections/' . $imagePath;
+                break;
+            case 'event':
+                $fullPath = 'uploads/events/' . $imagePath;
+                break;
+            case 'virtual_tour':
+                $fullPath = 'uploads/virtual_tours/' . $imagePath;
+                break;
+            default:
+                $fullPath = 'uploads/' . $imagePath;
+        }
+        
+        // Check if file exists
+        if (file_exists($fullPath)) {
+            return $fullPath;
+        }
+        
+        // If the path doesn't include uploads/, try with it
+        if (strpos($imagePath, 'uploads/') === false) {
+            $altPath = 'uploads/' . $type . 's/' . $imagePath;
+            if (file_exists($altPath)) {
+                return $altPath;
+            }
+        }
+        
+        // If it's already a full URL, return it
+        if (filter_var($imagePath, FILTER_VALIDATE_URL)) {
+            return $imagePath;
+        }
+    }
+    
+    // Return category-specific fallback image
+    return getFallbackImage($type, $category);
+}
+
+// Get appropriate fallback image based on type and category
+function getFallbackImage($type, $category = '') {
+    $category = strtolower($category);
+    
+    switch ($type) {
+        case 'exhibition':
+            if (strpos($category, 'modern') !== false || strpos($category, 'contemporary') !== false) {
+                return 'https://images.unsplash.com/photo-1544967082-d9d25d867d66?w=600&h=400&fit=crop&auto=format';
+            } elseif (strpos($category, 'renaissance') !== false || strpos($category, 'classical') !== false) {
+                return 'https://images.unsplash.com/photo-1577083552431-6e5fd01aa342?w=600&h=400&fit=crop&auto=format';
+            } elseif (strpos($category, 'digital') !== false || strpos($category, 'technology') !== false) {
+                return 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=600&h=400&fit=crop&auto=format';
+            } elseif (strpos($category, 'impressionism') !== false || strpos($category, 'impressionist') !== false) {
+                return 'https://images.unsplash.com/photo-1578321272176-b7bbc0679853?w=600&h=400&fit=crop&auto=format';
+            } elseif (strpos($category, 'photography') !== false) {
+                return 'https://images.unsplash.com/photo-1606983340126-99ab4feaa64a?w=600&h=400&fit=crop&auto=format';
+            } elseif (strpos($category, 'ancient') !== false || strpos($category, 'historical') !== false) {
+                return 'https://images.unsplash.com/photo-1594736797933-d0401ba2fe65?w=600&h=400&fit=crop&auto=format';
+            } elseif (strpos($category, 'abstract') !== false) {
+                return 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=600&h=400&fit=crop&auto=format';
+            } elseif (strpos($category, 'sculpture') !== false) {
+                return 'https://images.unsplash.com/photo-1594736797933-d0401ba2fe65?w=600&h=400&fit=crop&auto=format';
+            } else {
+                return 'https://images.unsplash.com/photo-1541961017774-22349e4a1262?w=600&h=400&fit=crop&auto=format';
+            }
+            
+        case 'collection':
+            if (strpos($category, 'painting') !== false) {
+                return 'https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?w=400&h=500&fit=crop&auto=format';
+            } elseif (strpos($category, 'sculpture') !== false) {
+                return 'https://images.unsplash.com/photo-1638186824584-6d6367254927?w=400&h=500&fit=crop&auto=format';
+            } elseif (strpos($category, 'photography') !== false) {
+                return 'https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=400&h=500&fit=crop&auto=format';
+            } elseif (strpos($category, 'ancient') !== false || strpos($category, 'artifact') !== false) {
+                return 'https://images.unsplash.com/photo-1606761568499-6d2451b23c66?w=400&h=500&fit=crop&auto=format';
+            } elseif (strpos($category, 'digital') !== false) {
+                return 'https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=400&h=500&fit=crop&auto=format';
+            } else {
+                return 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400&h=500&fit=crop&auto=format';
+            }
+            
+        case 'event':
+            if (strpos($category, 'workshop') !== false || strpos($category, 'class') !== false) {
+                return 'https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?w=600&h=400&fit=crop&auto=format';
+            } elseif (strpos($category, 'concert') !== false || strpos($category, 'music') !== false) {
+                return 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=600&h=400&fit=crop&auto=format';
+            } elseif (strpos($category, 'lecture') !== false || strpos($category, 'talk') !== false) {
+                return 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=600&h=400&fit=crop&auto=format';
+            } elseif (strpos($category, 'tour') !== false) {
+                return 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=600&h=400&fit=crop&auto=format';
+            } else {
+                return 'https://images.unsplash.com/photo-1475721027785-f74eccf877e2?w=600&h=400&fit=crop&auto=format';
+            }
+            
+        case 'virtual_tour':
+            return 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=800&h=600&fit=crop&auto=format';
+            
+        default:
+            return 'https://images.unsplash.com/photo-1541961017774-22349e4a1262?w=600&h=400&fit=crop&auto=format';
+    }
+}
+
+// Create upload directories if they don't exist
+function ensureUploadDirectories() {
+    $directories = [
+        'uploads',
+        'uploads/exhibitions',
+        'uploads/collections',
+        'uploads/events',
+        'uploads/virtual_tours'
+    ];
+    
+    foreach ($directories as $dir) {
+        if (!file_exists($dir)) {
+            mkdir($dir, 0755, true);
+        }
+    }
+}
+
 // Enhanced role-based redirection
 function redirectBasedOnRole() {
     if (!isLoggedIn()) {
@@ -329,6 +455,468 @@ function joinMembership($user_data, $membership_type) {
     }
 }
 
+// Enhanced membership function with email confirmation
+function joinMembershipEnhanced($user_data, $membership_data) {
+    global $pdo;
+    
+    try {
+        $pdo->beginTransaction();
+        
+        // Check if user already has an active membership
+        $stmt = $pdo->prepare("SELECT id, membership_type, end_date FROM memberships WHERE user_id = ? AND status = 'active' AND end_date > NOW()");
+        $stmt->execute([$user_data['id']]);
+        $existing_membership = $stmt->fetch();
+        
+        if ($existing_membership) {
+            $pdo->rollback();
+            return [
+                'success' => false, 
+                'message' => 'You already have an active ' . ucfirst($existing_membership['membership_type']) . ' membership valid until ' . formatDate($existing_membership['end_date']) . '.'
+            ];
+        }
+        
+        // Get membership pricing
+        $membership_prices = [
+            'individual' => 75,
+            'family' => 125,
+            'student' => 45,
+            'senior' => 60,
+            'patron' => 500
+        ];
+        
+        $membership_type = $membership_data['membership_type'];
+        $price = $membership_prices[$membership_type] ?? 0;
+        
+        // Create membership record
+        $start_date = date('Y-m-d');
+        $end_date = date('Y-m-d', strtotime('+1 year'));
+        $member_id = 'NMAC-' . date('Y') . '-' . str_pad($user_data['id'], 4, '0', STR_PAD_LEFT);
+        
+        $stmt = $pdo->prepare("
+            INSERT INTO memberships (
+                user_id, membership_type, start_date, end_date, status, 
+                member_id, price_paid, payment_method, billing_address, 
+                phone_number, created_at
+            ) VALUES (?, ?, ?, ?, 'active', ?, ?, ?, ?, ?, NOW())
+        ");
+        
+        $stmt->execute([
+            $user_data['id'],
+            $membership_type,
+            $start_date,
+            $end_date,
+            $member_id,
+            $price,
+            $membership_data['payment_method'],
+            $membership_data['billing_address'],
+            $membership_data['phone_number']
+        ]);
+        
+        $membership_id = $pdo->lastInsertId();
+        
+        // Prepare membership details for email
+        $membership_details = [
+            'id' => $membership_id,
+            'member_id' => $member_id,
+            'membership_type' => $membership_type,
+            'start_date' => $start_date,
+            'end_date' => $end_date,
+            'price_paid' => $price,
+            'payment_method' => $membership_data['payment_method'],
+            'billing_address' => $membership_data['billing_address'],
+            'phone_number' => $membership_data['phone_number']
+        ];
+        
+        // Send congratulations email
+        $email_result = sendMembershipCongratulationsEmail($user_data, $membership_details);
+        
+        // Also subscribe to newsletter if opted in
+        if (isset($membership_data['newsletter_opt_in'])) {
+            subscribeNewsletter($user_data['email'], $user_data['first_name'] . ' ' . $user_data['last_name']);
+        }
+        
+        // Log the membership creation
+        logUserActivity($user_data['id'], 'membership_created', "Joined as $membership_type member - Member ID: $member_id");
+        
+        // Send notification to admin
+        sendAdminMembershipNotification($user_data, $membership_details);
+        
+        $pdo->commit();
+        
+        return [
+            'success' => true, 
+            'message' => 'Congratulations! Your membership has been successfully activated. A confirmation email has been sent to your email address.',
+            'membership_id' => $membership_id,
+            'membership_details' => $membership_details
+        ];
+        
+    } catch(PDOException $e) {
+        $pdo->rollback();
+        error_log("Enhanced membership creation error: " . $e->getMessage());
+        return ['success' => false, 'message' => 'An error occurred while processing your membership. Please try again or contact support.'];
+    }
+}
+
+// Send congratulations email with enhanced template
+function sendMembershipCongratulationsEmail($user_data, $membership_details) {
+    $to = $user_data['email'];
+    $subject = "🎉 Congratulations! Welcome to NMAC - Your Membership is Active";
+    
+    // Get membership benefits based on type
+    $benefits = getMembershipBenefits($membership_details['membership_type']);
+    
+    $message = "
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset='UTF-8'>
+        <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+        <style>
+            body { 
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+                line-height: 1.6; 
+                color: #333; 
+                margin: 0; 
+                padding: 0;
+                background-color: #f8f9fa;
+            }
+            .container { 
+                max-width: 600px; 
+                margin: 0 auto; 
+                background: white;
+                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            }
+            .header { 
+                background: linear-gradient(135deg, #2c3e50, #3498db); 
+                color: white; 
+                padding: 30px 20px; 
+                text-align: center; 
+            }
+            .header h1 { 
+                margin: 0; 
+                font-size: 28px; 
+                font-weight: 300; 
+            }
+            .header .emoji { 
+                font-size: 48px; 
+                margin-bottom: 10px; 
+                display: block; 
+            }
+            .content { 
+                padding: 30px 20px; 
+            }
+            .welcome-message {
+                background: #e8f5e8;
+                padding: 20px;
+                border-radius: 8px;
+                margin: 20px 0;
+                border-left: 4px solid #28a745;
+            }
+            .membership-card {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                padding: 25px;
+                border-radius: 12px;
+                margin: 25px 0;
+                text-align: center;
+                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            }
+            .member-id {
+                font-size: 24px;
+                font-weight: bold;
+                letter-spacing: 2px;
+                margin: 10px 0;
+            }
+            .membership-details { 
+                background: #f8f9fa; 
+                padding: 20px; 
+                margin: 20px 0; 
+                border-radius: 8px;
+                border: 1px solid #dee2e6;
+            }
+            .detail-row {
+                display: flex;
+                justify-content: space-between;
+                padding: 8px 0;
+                border-bottom: 1px solid #e9ecef;
+            }
+            .detail-row:last-child {
+                border-bottom: none;
+                font-weight: bold;
+                font-size: 18px;
+                color: #2c3e50;
+            }
+            .benefits-list {
+                background: white;
+                border: 2px solid #3498db;
+                border-radius: 8px;
+                padding: 20px;
+                margin: 20px 0;
+            }
+            .benefits-list h3 {
+                color: #2c3e50;
+                margin-top: 0;
+                text-align: center;
+            }
+            .benefits-list ul {
+                list-style: none;
+                padding: 0;
+            }
+            .benefits-list li {
+                padding: 8px 0;
+                border-bottom: 1px solid #ecf0f1;
+                position: relative;
+                padding-left: 30px;
+            }
+            .benefits-list li:before {
+                content: '✓';
+                position: absolute;
+                left: 0;
+                color: #27ae60;
+                font-weight: bold;
+                font-size: 16px;
+            }
+            .cta-section {
+                text-align: center;
+                margin: 30px 0;
+            }
+            .btn { 
+                display: inline-block; 
+                padding: 15px 30px; 
+                background: #3498db; 
+                color: white; 
+                text-decoration: none; 
+                border-radius: 25px; 
+                font-weight: bold;
+                margin: 10px;
+                transition: background 0.3s ease;
+            }
+            .btn:hover {
+                background: #2980b9;
+            }
+            .btn-secondary {
+                background: #95a5a6;
+            }
+            .footer { 
+                text-align: center; 
+                padding: 30px 20px; 
+                color: #666; 
+                font-size: 14px; 
+                background: #f8f9fa;
+                border-top: 1px solid #dee2e6;
+            }
+            .social-links {
+                margin: 20px 0;
+            }
+            .social-links a {
+                display: inline-block;
+                margin: 0 10px;
+                color: #3498db;
+                text-decoration: none;
+            }
+            @media (max-width: 600px) {
+                .container { width: 100%; }
+                .content { padding: 20px 15px; }
+                .header { padding: 20px 15px; }
+                .detail-row { flex-direction: column; }
+                .detail-row span:first-child { font-weight: bold; }
+            }
+        </style>
+    </head>
+    <body>
+        <div class='container'>
+            <div class='header'>
+                <span class='emoji'>🎉</span>
+                <h1>Congratulations, " . htmlspecialchars($user_data['first_name']) . "!</h1>
+                <p>Welcome to the NMAC Family</p>
+            </div>
+            
+            <div class='content'>
+                <div class='welcome-message'>
+                    <h2>🌟 Your Membership is Now Active!</h2>
+                    <p>Thank you for joining the National Museum of Art & Culture! We're thrilled to welcome you as our newest " . ucfirst($membership_details['membership_type']) . " member.</p>
+                </div>
+                
+                <div class='membership-card'>
+                    <h3>Digital Membership Card</h3>
+                    <div class='member-id'>" . htmlspecialchars($membership_details['member_id']) . "</div>
+                    <p>" . ucfirst($membership_details['membership_type']) . " Member</p>
+                    <p>Valid: " . formatDate($membership_details['start_date']) . " - " . formatDate($membership_details['end_date']) . "</p>
+                </div>
+                
+                <div class='membership-details'>
+                    <h3>📋 Membership Details</h3>
+                    <div class='detail-row'>
+                        <span>Member Name:</span>
+                        <span>" . htmlspecialchars($user_data['first_name'] . ' ' . $user_data['last_name']) . "</span>
+                    </div>
+                    <div class='detail-row'>
+                        <span>Membership Type:</span>
+                        <span>" . ucfirst($membership_details['membership_type']) . "</span>
+                    </div>
+                    <div class='detail-row'>
+                        <span>Member ID:</span>
+                        <span>" . htmlspecialchars($membership_details['member_id']) . "</span>
+                    </div>
+                    <div class='detail-row'>
+                        <span>Start Date:</span>
+                        <span>" . formatDate($membership_details['start_date']) . "</span>
+                    </div>
+                    <div class='detail-row'>
+                        <span>Valid Until:</span>
+                        <span>" . formatDate($membership_details['end_date']) . "</span>
+                    </div>
+                    <div class='detail-row'>
+                        <span>Amount Paid:</span>
+                        <span>$" . number_format($membership_details['price_paid'], 2) . "</span>
+                    </div>
+                </div>
+                
+                <div class='benefits-list'>
+                    <h3>🎁 Your Exclusive Benefits</h3>
+                    <ul>
+                        " . implode('', array_map(function($benefit) { return "<li>$benefit</li>"; }, $benefits)) . "
+                    </ul>
+                </div>
+                
+                <div class='cta-section'>
+                    <h3>Ready to Start Exploring?</h3>
+                    <p>Your membership gives you immediate access to all our exhibitions and member benefits.</p>
+                    <a href='http://nmac.org/exhibitions' class='btn'>View Current Exhibitions</a>
+                    <a href='http://nmac.org/events' class='btn btn-secondary'>Browse Member Events</a>
+                </div>
+                
+                <div style='background: #fff3cd; padding: 15px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #ffc107;'>
+                    <h4>📱 Important Information:</h4>
+                    <ul style='margin: 0; padding-left: 20px;'>
+                        <li>Your physical membership card will arrive within 7-10 business days</li>
+                        <li>Show this email for immediate member access</li>
+                        <li>Download our mobile app for digital membership card access</li>
+                        <li>Contact us at membership@nmac.org for any questions</li>
+                    </ul>
+                </div>
+                
+                <p>Thank you for supporting the arts and becoming part of our community. We look forward to seeing you at the museum soon!</p>
+                
+                <p style='margin-top: 30px;'>
+                    <strong>Warm regards,</strong><br>
+                    <strong>The NMAC Membership Team</strong><br>
+                    National Museum of Art & Culture
+                </p>
+            </div>
+            
+            <div class='footer'>
+                <div class='social-links'>
+                    <a href='#'>Facebook</a> | 
+                    <a href='#'>Instagram</a> | 
+                    <a href='#'>Twitter</a> | 
+                    <a href='#'>YouTube</a>
+                </div>
+                <p><strong>National Museum of Art & Culture</strong><br>
+                123 Museum Street, City, State 12345<br>
+                Phone: (123) 456-7890 | Email: info@nmac.org<br>
+                <a href='http://nmac.org'>www.nmac.org</a></p>
+                
+                <p style='font-size: 12px; color: #999; margin-top: 20px;'>
+                    You received this email because you signed up for a membership at NMAC.<br>
+                    <a href='#' style='color: #999;'>Unsubscribe</a> | 
+                    <a href='#' style='color: #999;'>Privacy Policy</a>
+                </p>
+            </div>
+        </div>
+    </body>
+    </html>
+    ";
+    
+    return sendEmail($to, $subject, $message);
+}
+
+// Get membership benefits based on type
+function getMembershipBenefits($membership_type) {
+    $benefits = [
+        'individual' => [
+            'Unlimited free admission to all exhibitions',
+            '10% discount in museum shop and café',
+            'Monthly member newsletter with exclusive content',
+            'Priority registration for events and workshops',
+            'Free coat check service',
+            'Access to member-only events',
+            'Invitations to exhibition openings'
+        ],
+        'family' => [
+            'Unlimited free admission for 2 adults + children under 18',
+            '15% discount in museum shop and café',
+            'Monthly member newsletter with exclusive content',
+            'Priority registration for events and workshops',
+            'Free coat check service',
+            'Access to member-only events and family programs',
+            'Invitations to exhibition openings',
+            '4 guest passes per year',
+            'Special family workshop discounts'
+        ],
+        'student' => [
+            'Unlimited free admission with valid student ID',
+            '10% discount in museum shop and café',
+            'Monthly member newsletter',
+            'Priority registration for educational programs',
+            'Free coat check service',
+            'Access to student networking events',
+            'Special student workshop rates'
+        ],
+        'senior' => [
+            'Unlimited free admission',
+            '15% discount in museum shop and café',
+            'Monthly member newsletter',
+            'Priority registration for events and workshops',
+            'Free coat check service',
+            'Access to senior-focused programs',
+            'Invitations to exhibition openings',
+            '2 guest passes per year'
+        ],
+        'patron' => [
+            'All Family membership benefits',
+            '20% discount in museum shop and café',
+            'Exclusive patron events and receptions',
+            'Behind-the-scenes tours with curators',
+            'Private viewing opportunities',
+            'Recognition in annual report',
+            '8 guest passes per year',
+            'Complimentary exhibition catalogs',
+            'Access to conservation lab tours',
+            'Annual patron appreciation dinner'
+        ]
+    ];
+    
+    return $benefits[$membership_type] ?? $benefits['individual'];
+}
+
+// Send admin notification about new membership
+function sendAdminMembershipNotification($user_data, $membership_details) {
+    $to = 'admin@nmac.org'; // Admin email
+    $subject = "New Membership Registration - " . ucfirst($membership_details['membership_type']);
+    
+    $message = "
+    <h2>New Membership Registration</h2>
+    <p>A new member has joined NMAC:</p>
+    
+    <h3>Member Information:</h3>
+    <ul>
+        <li><strong>Name:</strong> " . htmlspecialchars($user_data['first_name'] . ' ' . $user_data['last_name']) . "</li>
+        <li><strong>Email:</strong> " . htmlspecialchars($user_data['email']) . "</li>
+        <li><strong>Member ID:</strong> " . htmlspecialchars($membership_details['member_id']) . "</li>
+        <li><strong>Membership Type:</strong> " . ucfirst($membership_details['membership_type']) . "</li>
+        <li><strong>Amount Paid:</strong> $" . number_format($membership_details['price_paid'], 2) . "</li>
+        <li><strong>Payment Method:</strong> " . ucfirst(str_replace('_', ' ', $membership_details['payment_method'])) . "</li>
+        <li><strong>Phone:</strong> " . htmlspecialchars($membership_details['phone_number']) . "</li>
+        <li><strong>Registration Date:</strong> " . formatDate($membership_details['start_date']) . "</li>
+    </ul>
+    
+    <p>Please ensure the physical membership card is prepared and mailed within 7-10 business days.</p>
+    ";
+    
+    return sendEmail($to, $subject, $message);
+}
+
 // Get user by ID
 function getUserById($id) {
     global $pdo;
@@ -431,7 +1019,7 @@ function deleteUser($user_id) {
     }
 }
 
-// Get exhibitions by status
+// Get exhibitions by status with enhanced image handling
 function getExhibitions($status = 'all', $limit = 0) {
     global $pdo;
     
@@ -453,14 +1041,27 @@ function getExhibitions($status = 'all', $limit = 0) {
     try {
         $stmt = $pdo->prepare($sql);
         $stmt->execute($params);
+<<<<<<< HEAD
         return $stmt->fetchAll();
+=======
+        $exhibitions = $stmt->fetchAll();
+        
+        // Ensure upload directories exist
+        ensureUploadDirectories();
+        
+        return $exhibitions;
+>>>>>>> feature-update
     } catch(PDOException $e) {
         error_log("Database error in getExhibitions: " . $e->getMessage());
         return [];
     }
 }
 
+<<<<<<< HEAD
 // Get events
+=======
+// Get events with enhanced image handling
+>>>>>>> feature-update
 function getEvents($limit = 0, $future_only = false) {
     global $pdo;
     
@@ -654,6 +1255,43 @@ function getCollectionById($id) {
         return $stmt->fetch();
     } catch(PDOException $e) {
         error_log("Database error in getCollectionById: " . $e->getMessage());
+        return null;
+    }
+}
+
+// Get virtual tours with video support
+function getVirtualTours($limit = 0) {
+    global $pdo;
+    
+    $sql = "SELECT * FROM virtual_tours ORDER BY featured DESC, id DESC";
+    
+    if ($limit > 0) {
+        $sql .= " LIMIT ?";
+        $params = [$limit];
+    } else {
+        $params = [];
+    }
+    
+    try {
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute($params);
+        return $stmt->fetchAll();
+    } catch(PDOException $e) {
+        error_log("Database error in getVirtualTours: " . $e->getMessage());
+        return [];
+    }
+}
+
+// Get virtual tour by ID
+function getVirtualTourById($id) {
+    global $pdo;
+    
+    try {
+        $stmt = $pdo->prepare("SELECT * FROM virtual_tours WHERE id = ?");
+        $stmt->execute([$id]);
+        return $stmt->fetch();
+    } catch(PDOException $e) {
+        error_log("Database error in getVirtualTourById: " . $e->getMessage());
         return null;
     }
 }

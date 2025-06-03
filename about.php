@@ -69,6 +69,16 @@ include 'includes/header.php';
                     <p>Launch of comprehensive virtual tour program, making our collections accessible worldwide.</p>
                 </div>
             </div>
+<<<<<<< HEAD
+=======
+            <div class="timeline-item">
+                <div class="timeline-year">2023</div>
+                <div class="timeline-content">
+                    <h3>Digital Innovation Hub</h3>
+                    <p>Opening of the new Digital Innovation Hub featuring interactive displays and immersive art experiences.</p>
+                </div>
+            </div>
+>>>>>>> feature-update
         </div>
     </div>
 </section>
@@ -79,32 +89,22 @@ include 'includes/header.php';
         <div class="team-grid">
             <div class="team-member">
                 <div class="member-image">
-                    <img src="https://source.unsplash.com/random/300x400/?professional-woman" alt="Dr. Sarah Chen">
+                    <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&h=400&fit=crop&auto=format" alt="Abhishek Thapa">
                 </div>
                 <div class="member-info">
-                    <h3>Dr. Sarah Chen</h3>
+                    <h3>Abhishek Thapa</h3>
                     <p class="member-title">Director & Chief Curator</p>
-                    <p>Dr. Chen brings over 20 years of experience in museum leadership and has curated exhibitions for major institutions worldwide.</p>
+                    <p>Abhishek brings over 15 years of experience in museum leadership and has curated exhibitions for major institutions worldwide, specializing in contemporary and digital art.</p>
                 </div>
             </div>
             <div class="team-member">
                 <div class="member-image">
-                    <img src="https://source.unsplash.com/random/300x400/?professional-man" alt="Michael Rodriguez">
+                    <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=300&h=400&fit=crop&auto=format" alt="Manoj Sitaula">
                 </div>
                 <div class="member-info">
-                    <h3>Michael Rodriguez</h3>
-                    <p class="member-title">Deputy Director</p>
-                    <p>Michael oversees daily operations and strategic planning, with expertise in museum administration and public programming.</p>
-                </div>
-            </div>
-            <div class="team-member">
-                <div class="member-image">
-                    <img src="https://source.unsplash.com/random/300x400/?professional-woman-2" alt="Dr. Emily Watson">
-                </div>
-                <div class="member-info">
-                    <h3>Dr. Emily Watson</h3>
-                    <p class="member-title">Chief Conservator</p>
-                    <p>Dr. Watson leads our conservation efforts, ensuring the preservation of our collection for future generations.</p>
+                    <h3>Manoj Sitaula</h3>
+                    <p class="member-title">Deputy Director & Operations Manager</p>
+                    <p>Manoj oversees daily operations and strategic planning, with expertise in museum administration, public programming, and cultural heritage preservation.</p>
                 </div>
             </div>
         </div>

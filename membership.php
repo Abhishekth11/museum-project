@@ -23,15 +23,34 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['join_membership'])) {
         $message_type = 'error';
     } else {
         $membership_type = $_POST['membership_type'] ?? '';
+        $payment_method = $_POST['payment_method'] ?? 'credit_card';
+        $billing_address = $_POST['billing_address'] ?? '';
+        $phone_number = $_POST['phone_number'] ?? '';
         
         if (!empty($membership_type)) {
             // Get current user data
             $user_data = getUserById($_SESSION['user_id']);
             
             if ($user_data) {
-                $result = joinMembership($user_data, $membership_type);
+                // Create membership with additional details
+                $membership_data = [
+                    'membership_type' => $membership_type,
+                    'payment_method' => $payment_method,
+                    'billing_address' => $billing_address,
+                    'phone_number' => $phone_number
+                ];
+                
+                $result = joinMembershipEnhanced($user_data, $membership_data);
                 $message = $result['message'];
                 $message_type = $result['success'] ? 'success' : 'error';
+                
+                if ($result['success']) {
+                    // Redirect to success page to prevent form resubmission
+                    $_SESSION['membership_success'] = true;
+                    $_SESSION['membership_details'] = $result['membership_details'];
+                    header('Location: membership.php?success=1');
+                    exit;
+                }
             } else {
                 $message = 'User data not found. Please try logging in again.';
                 $message_type = 'error';
@@ -41,6 +60,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['join_membership'])) {
             $message_type = 'error';
         }
     }
+}
+
+// Handle success redirect
+if (isset($_GET['success']) && isset($_SESSION['membership_success'])) {
+    $message = 'Congratulations! Your membership has been successfully activated. A confirmation email has been sent to your email address.';
+    $message_type = 'success';
+    $membership_details = $_SESSION['membership_details'] ?? null;
+    unset($_SESSION['membership_success'], $_SESSION['membership_details']);
 }
 
 include 'includes/header.php';
@@ -209,7 +236,7 @@ include 'includes/header.php';
         <?php endif; ?>
         
         <?php if (isLoggedIn()): ?>
-            <form method="POST" class="membership-form">
+            <form method="POST" class="membership-form" id="membership-signup-form">
                 <input type="hidden" name="csrf_token" value="<?php echo generateCSRFToken(); ?>">
                 <input type="hidden" name="membership_type" id="membership-type-input">
                 
@@ -217,6 +244,29 @@ include 'includes/header.php';
                     <h3>Your Information</h3>
                     <p><strong>Name:</strong> <?php echo htmlspecialchars($_SESSION['user_name']); ?></p>
                     <p><strong>Email:</strong> <?php echo htmlspecialchars(getUserById($_SESSION['user_id'])['email'] ?? ''); ?></p>
+                </div>
+                
+                <div class="form-group">
+                    <label for="phone_number">Phone Number</label>
+                    <input type="tel" id="phone_number" name="phone_number" required 
+                           placeholder="(123) 456-7890" class="form-control">
+                </div>
+                
+                <div class="form-group">
+                    <label for="billing_address">Billing Address</label>
+                    <textarea id="billing_address" name="billing_address" required 
+                              placeholder="Enter your complete billing address" 
+                              class="form-control" rows="3"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="payment_method">Payment Method</label>
+                    <select id="payment_method" name="payment_method" required class="form-control">
+                        <option value="credit_card">Credit Card</option>
+                        <option value="debit_card">Debit Card</option>
+                        <option value="bank_transfer">Bank Transfer</option>
+                        <option value="paypal">PayPal</option>
+                    </select>
                 </div>
                 
                 <div class="membership-summary">
@@ -233,16 +283,31 @@ include 'includes/header.php';
                         <span>Valid Until:</span>
                         <span><?php echo date('F j, Y', strtotime('+1 year')); ?></span>
                     </div>
+                    <div class="summary-item">
+                        <span>Member ID:</span>
+                        <span id="member-id-preview">Will be assigned after signup</span>
+                    </div>
                 </div>
                 
                 <div class="form-group">
-                    <label>
+                    <label class="checkbox-label">
                         <input type="checkbox" required>
+                        <span class="checkmark"></span>
                         I agree to the <a href="terms.php" target="_blank">Terms and Conditions</a> and <a href="privacy.php" target="_blank">Privacy Policy</a>
                     </label>
                 </div>
                 
-                <button type="submit" name="join_membership" class="btn btn-primary btn-block">Complete Membership</button>
+                <div class="form-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" name="newsletter_opt_in" checked>
+                        <span class="checkmark"></span>
+                        I would like to receive the museum newsletter and updates about special events
+                    </label>
+                </div>
+                
+                <button type="submit" name="join_membership" class="btn btn-primary btn-block">
+                    <i class="fas fa-credit-card"></i> Complete Membership Registration
+                </button>
             </form>
         <?php else: ?>
             <div class="login-required">

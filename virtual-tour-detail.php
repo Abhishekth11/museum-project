@@ -5,38 +5,63 @@ require_once 'includes/functions.php';
 
 $tour = isset($_GET['tour']) ? $_GET['tour'] : 'complete';
 
-$tours = [
+// Get virtual tours from database
+try {
+    $stmt = $pdo->prepare("SELECT * FROM virtual_tours WHERE id = ? OR title LIKE ?");
+    $stmt->execute([$tour, '%' . $tour . '%']);
+    $current_tour = $stmt->fetch();
+    
+    // Get all tours for "other tours" section
+    $stmt = $pdo->prepare("SELECT * FROM virtual_tours ORDER BY featured DESC, id ASC");
+    $stmt->execute();
+    $all_tours = $stmt->fetchAll();
+} catch(PDOException $e) {
+    $current_tour = null;
+    $all_tours = [];
+}
+
+// Fallback tours if database is empty
+$fallback_tours = [
     'complete' => [
         'title' => 'Complete Museum Tour',
         'description' => 'Experience our entire museum with this comprehensive virtual tour featuring all major galleries and exhibitions.',
         'duration' => '45 minutes',
         'highlights' => ['Main Gallery', 'Modern Art Wing', 'Renaissance Collection', 'Sculpture Garden', 'Photography Gallery'],
-        'image' => 'images/tours/complete-tour.jpg'
+        'image' => 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=800&h=600&fit=crop',
+        'video_url' => 'https://www.youtube.com/embed/dQw4w9WgXcQ'
     ],
     'modern' => [
         'title' => 'Modern Masterpieces Gallery',
         'description' => 'Explore our collection of 20th-century art with detailed commentary on each masterpiece.',
         'duration' => '20 minutes',
         'highlights' => ['Abstract Expressionism', 'Pop Art', 'Minimalism', 'Contemporary Sculptures'],
-        'image' => 'images/tours/modern-tour.jpg'
+        'image' => 'https://images.unsplash.com/photo-1541961017774-22349e4a1262?w=800&h=600&fit=crop',
+        'video_url' => 'https://www.youtube.com/embed/dQw4w9WgXcQ'
     ],
     'renaissance' => [
         'title' => 'Renaissance Collection',
         'description' => 'Journey through the Renaissance period with our curated collection of paintings and sculptures.',
         'duration' => '25 minutes',
         'highlights' => ['Italian Masters', 'Religious Art', 'Portrait Gallery', 'Sculpture Hall'],
-        'image' => 'images/tours/renaissance-tour.jpg'
+        'image' => 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=800&h=600&fit=crop',
+        'video_url' => 'https://www.youtube.com/embed/dQw4w9WgXcQ'
     ],
     'sculpture-garden' => [
         'title' => 'Sculpture Garden',
         'description' => 'Take a peaceful walk through our outdoor sculpture garden featuring contemporary works.',
         'duration' => '15 minutes',
         'highlights' => ['Contemporary Sculptures', 'Garden Landscapes', 'Interactive Installations'],
-        'image' => 'images/tours/garden-tour.jpg'
+        'image' => 'https://images.unsplash.com/photo-1594736797933-d0401ba2fe65?w=800&h=600&fit=crop',
+        'video_url' => 'https://www.youtube.com/embed/dQw4w9WgXcQ'
     ]
 ];
 
-$current_tour = $tours[$tour] ?? $tours['complete'];
+// Use database tour or fallback
+if (!$current_tour) {
+    $current_tour = $fallback_tours[$tour] ?? $fallback_tours['complete'];
+    $current_tour['highlights'] = explode(',', $current_tour['highlights'] ?? '');
+}
+
 $page_title = $current_tour['title'] . " - Virtual Tour - National Museum of Art & Culture";
 
 include 'includes/header.php';
@@ -71,6 +96,11 @@ include 'includes/header.php';
                     <p>Click to start your immersive 360° tour experience</p>
                     <button class="btn btn-primary btn-lg" onclick="startTour()">Start Tour</button>
                 </div>
+                
+                <!-- Video iframe for actual tour -->
+                <div class="tour-video" style="display: none;">
+                    <iframe id="tour-iframe" src="<?php echo htmlspecialchars($current_tour['video_url'] ?? ''); ?>" frameborder="0" allowfullscreen></iframe>
+                </div>
             </div>
             
             <div class="tour-controls" style="display: none;">
@@ -93,8 +123,10 @@ include 'includes/header.php';
             <div class="tour-highlights">
                 <h3>Tour Highlights</h3>
                 <ul>
-                    <?php foreach ($current_tour['highlights'] as $highlight): ?>
-                        <li><?php echo htmlspecialchars($highlight); ?></li>
+                    <?php 
+                    $highlights = is_array($current_tour['highlights']) ? $current_tour['highlights'] : explode(',', $current_tour['highlights'] ?? '');
+                    foreach ($highlights as $highlight): ?>
+                        <li><?php echo htmlspecialchars(trim($highlight)); ?></li>
                     <?php endforeach; ?>
                 </ul>
             </div>
@@ -106,17 +138,41 @@ include 'includes/header.php';
     <div class="container">
         <h2>Other Virtual Tours</h2>
         <div class="tours-grid">
-            <?php foreach ($tours as $tour_key => $tour_data): ?>
-                <?php if ($tour_key !== $tour): ?>
+            <?php 
+            $tours_to_show = !empty($all_tours) ? $all_tours : $fallback_tours;
+            foreach ($tours_to_show as $tour_key => $tour_data): 
+                if (is_array($tour_data) && ($tour_key !== $tour && $tour_data['title'] !== $current_tour['title'])): ?>
                     <div class="tour-card">
                         <div class="tour-image">
-                            <img src="<?php echo $tour_data['image']; ?>" alt="<?php echo htmlspecialchars($tour_data['title']); ?>">
+                            <img src="<?php echo !empty($tour_data['image']) ? (strpos($tour_data['image'], 'http') === 0 ? $tour_data['image'] : 'uploads/tours/' . $tour_data['image']) : $tour_data['image']; ?>" alt="<?php echo htmlspecialchars($tour_data['title']); ?>">
                             <div class="tour-duration"><?php echo $tour_data['duration']; ?></div>
+                            <div class="tour-overlay">
+                                <button class="play-btn" onclick="window.location.href='virtual-tour-detail.php?tour=<?php echo $tour_key; ?>'">
+                                    <i class="fas fa-play"></i>
+                                </button>
+                            </div>
                         </div>
                         <div class="tour-details">
                             <h3><?php echo htmlspecialchars($tour_data['title']); ?></h3>
                             <p><?php echo htmlspecialchars(substr($tour_data['description'], 0, 100)); ?>...</p>
                             <a href="virtual-tour-detail.php?tour=<?php echo $tour_key; ?>" class="btn btn-secondary">Start Tour</a>
+                        </div>
+                    </div>
+                <?php elseif (is_object($tour_data) && $tour_data->id != $current_tour['id']): ?>
+                    <div class="tour-card">
+                        <div class="tour-image">
+                            <img src="<?php echo !empty($tour_data->image) ? (strpos($tour_data->image, 'http') === 0 ? $tour_data->image : 'uploads/tours/' . $tour_data->image) : $tour_data->image; ?>" alt="<?php echo htmlspecialchars($tour_data->title); ?>">
+                            <div class="tour-duration"><?php echo $tour_data->duration; ?></div>
+                            <div class="tour-overlay">
+                                <button class="play-btn" onclick="window.location.href='virtual-tour-detail.php?tour=<?php echo $tour_data->id; ?>'">
+                                    <i class="fas fa-play"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="tour-details">
+                            <h3><?php echo htmlspecialchars($tour_data->title); ?></h3>
+                            <p><?php echo htmlspecialchars(substr($tour_data->description, 0, 100)); ?>...</p>
+                            <a href="virtual-tour-detail.php?tour=<?php echo $tour_data->id; ?>" class="btn btn-secondary">Start Tour</a>
                         </div>
                     </div>
                 <?php endif; ?>
@@ -172,6 +228,16 @@ include 'includes/header.php';
     font-size: 8rem;
     margin-bottom: 2rem;
     color: var(--primary);
+}
+
+.tour-video {
+    width: 100%;
+    height: 100%;
+}
+
+.tour-video iframe {
+    width: 100%;
+    height: 100%;
 }
 
 .tour-controls {
@@ -241,6 +307,79 @@ include 'includes/header.php';
     margin-top: 3rem;
 }
 
+.tour-card {
+    background: var(--surface);
+    border-radius: var(--border-radius-lg);
+    overflow: hidden;
+    box-shadow: 0 4px 20px var(--shadow);
+    transition: transform 0.3s ease;
+}
+
+.tour-card:hover {
+    transform: translateY(-5px);
+}
+
+.tour-image {
+    position: relative;
+    height: 20rem;
+    overflow: hidden;
+}
+
+.tour-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.tour-duration {
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: var(--border-radius);
+    font-size: 1.2rem;
+}
+
+.tour-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity var(--transition-fast);
+}
+
+.tour-card:hover .tour-overlay {
+    opacity: 1;
+}
+
+.play-btn {
+    width: 8rem;
+    height: 8rem;
+    border-radius: 50%;
+    background: var(--primary);
+    color: white;
+    border: none;
+    font-size: 3rem;
+    cursor: pointer;
+    transition: transform var(--transition-fast);
+}
+
+.play-btn:hover {
+    transform: scale(1.1);
+}
+
+.tour-details {
+    padding: 2rem;
+}
+
 @media (max-width: 768px) {
     .tour-meta {
         flex-direction: column;
@@ -268,13 +407,21 @@ let audioEnabled = true;
 
 function startTour() {
     document.querySelector('.tour-placeholder').style.display = 'none';
+    document.querySelector('.tour-video').style.display = 'block';
     document.querySelector('.tour-controls').style.display = 'flex';
     
-    // Simulate tour start
+    // Start the actual video
+    const iframe = document.getElementById('tour-iframe');
+    if (iframe.src) {
+        // Add autoplay parameter to the video URL
+        const url = new URL(iframe.src);
+        url.searchParams.set('autoplay', '1');
+        iframe.src = url.toString();
+    }
+    
     tourPlaying = true;
     simulateProgress();
     
-    // In a real implementation, this would initialize the 360° viewer
     console.log('Starting virtual tour...');
 }
 
@@ -297,10 +444,11 @@ function toggleAudio() {
 }
 
 function toggleFullscreen() {
+    const playerContainer = document.querySelector('.player-container');
     if (document.fullscreenElement) {
         document.exitFullscreen();
     } else {
-        document.querySelector('.player-container').requestFullscreen();
+        playerContainer.requestFullscreen();
     }
 }
 

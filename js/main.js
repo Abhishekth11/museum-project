@@ -50,6 +50,12 @@ window.ThemeManager = (() => {
         detail: { theme: theme },
       }),
     )
+<<<<<<< HEAD
+=======
+
+    // Call observers
+    notifyObservers("change", theme)
+>>>>>>> feature-update
   }
 
   // Update toggle button icons
@@ -127,6 +133,24 @@ window.ThemeManager = (() => {
     log("Theme system initialized successfully")
   }
 
+<<<<<<< HEAD
+=======
+  // Observer pattern
+  let observers = []
+
+  function addObserver(observer) {
+    observers.push(observer)
+  }
+
+  function removeObserver(observer) {
+    observers = observers.filter((obs) => obs !== observer)
+  }
+
+  function notifyObservers(event, theme) {
+    observers.forEach((observer) => observer(event, theme))
+  }
+
+>>>>>>> feature-update
   // Public API
   return {
     init: init,
@@ -134,6 +158,12 @@ window.ThemeManager = (() => {
     apply: applyTheme,
     getCurrent: () => currentTheme,
     isInitialized: () => isInitialized,
+<<<<<<< HEAD
+=======
+    addObserver: addObserver,
+    removeObserver: removeObserver,
+    setTheme: applyTheme, // Added setTheme alias for applyTheme
+>>>>>>> feature-update
   }
 })()
 
@@ -161,6 +191,7 @@ if (document.readyState === "loading") {
 
 // Rest of main.js functionality
 document.addEventListener("DOMContentLoaded", () => {
+<<<<<<< HEAD
   // Simple theme toggle functionality
   const themeToggleBtn = document.querySelector(".theme-toggle")
 
@@ -204,6 +235,24 @@ document.addEventListener("DOMContentLoaded", () => {
         moonIcon.style.display = "inline-block"
       }
     }
+=======
+  // Ensure theme manager is initialized
+  if (window.ThemeManager && !window.ThemeManager.isInitialized()) {
+    window.ThemeManager.init()
+  }
+
+  // Add theme change observer for custom functionality
+  if (window.ThemeManager) {
+    window.ThemeManager.addObserver((event, theme) => {
+      console.log(`Theme ${event}:`, theme)
+
+      // Custom theme change handling can go here
+      if (event === "change") {
+        // Update any theme-specific elements
+        updateThemeSpecificElements(theme)
+      }
+    })
+>>>>>>> feature-update
   }
 
   // Mobile menu functionality
@@ -497,6 +546,30 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 })
 
+<<<<<<< HEAD
+=======
+/**
+ * Update theme-specific elements when theme changes
+ */
+function updateThemeSpecificElements(theme) {
+  // Update meta theme-color
+  const themeColorMeta = document.querySelector('meta[name="theme-color"]')
+  if (themeColorMeta) {
+    themeColorMeta.content = theme === "dark-theme" ? "#121212" : "#ffffff"
+  }
+
+  // Update any charts, maps, or third-party components that need theme updates
+  // Example: Update chart colors, map styles, etc.
+
+  // Dispatch event for other components to listen to
+  window.dispatchEvent(
+    new CustomEvent("themeElementsUpdate", {
+      detail: { theme },
+    }),
+  )
+}
+
+>>>>>>> feature-update
 // Legacy function support for backward compatibility
 function initializeTheme() {
   console.log("Legacy initializeTheme called, delegating to ThemeManager")
@@ -512,3 +585,53 @@ function applyTheme(theme) {
   console.log("Legacy applyTheme called, delegating to ThemeManager")
   window.ThemeManager.apply(theme)
 }
+<<<<<<< HEAD
+=======
+
+// Global theme utilities for backward compatibility
+window.toggleTheme = () => window.ThemeManager?.toggle()
+window.setTheme = (theme) => window.ThemeManager?.setTheme(theme)
+window.getCurrentTheme = () => window.ThemeManager?.getCurrent()
+
+// Add this to the end of your main.js file to ensure search functionality is initialized
+
+// Ensure search functionality is initialized
+document.addEventListener("DOMContentLoaded", () => {
+  // Initialize search functionality if not already done
+  if (window.searchManager && !window.searchManager.initialized) {
+    window.searchManager.init()
+  } else if (!window.searchManager) {
+    // Fallback if search.js hasn't loaded yet
+    const searchToggleBtn = document.querySelector(".search-toggle")
+    const searchCloseBtn = document.querySelector(".search-close")
+    const searchOverlay = document.querySelector(".search-overlay")
+
+    if (searchToggleBtn && searchOverlay && searchCloseBtn) {
+      // Open search overlay
+      searchToggleBtn.addEventListener("click", (e) => {
+        e.preventDefault()
+        searchOverlay.classList.add("active")
+        setTimeout(() => {
+          const searchInput = searchOverlay.querySelector('input[name="q"]')
+          if (searchInput) searchInput.focus()
+        }, 100)
+      })
+
+      // Close search overlay
+      searchCloseBtn.addEventListener("click", (e) => {
+        e.preventDefault()
+        searchOverlay.classList.remove("active")
+      })
+
+      // Close search with Escape key
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape" && searchOverlay.classList.contains("active")) {
+          searchOverlay.classList.remove("active")
+        }
+      })
+
+      console.log("Search functionality initialized via fallback")
+    }
+  }
+})
+>>>>>>> feature-update

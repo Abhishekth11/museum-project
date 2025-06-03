@@ -1,7 +1,39 @@
 <?php
 session_start();
+
+// Initialize database tables if needed
+require_once 'init-database.php';
+if (!initializeDatabase()) {
+    die("Database setup failed. Please contact support.");
+}
+
 require_once 'includes/db.php';
 require_once 'includes/functions.php';
+
+// Fallback function in case functions.php doesn't load properly
+if (!function_exists('isLoggedIn')) {
+    function isLoggedIn() {
+        return isset($_SESSION['user_id']) && isset($_SESSION['login_time']);
+    }
+}
+
+// Fallback function for redirectBasedOnRole
+if (!function_exists('redirectBasedOnRole')) {
+    function redirectBasedOnRole() {
+        $user_role = $_SESSION['user_role'] ?? 'user';
+        if (in_array($user_role, ['admin', 'moderator', 'staff'])) {
+            header('Location: admin/dashboard.php');
+        } else {
+            header('Location: index.php');
+        }
+        exit;
+    }
+}
+
+// Force light theme for login page to ensure consistent experience
+if (function_exists('setThemePreference')) {
+    setThemePreference('light');
+}
 
 // Check for logout message
 $logout_message = '';
@@ -83,11 +115,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     if (!verifyCSRFToken($_POST['csrf_token'] ?? '')) {
         $error = 'Invalid security token. Please try again.';
     } else {
-        $firstName = trim($_POST['firstName'] ?? '');
-        $lastName = trim($_POST['lastName'] ?? '');
+        $firstName = trim($_POST['first_name'] ?? '');
+        $lastName = trim($_POST['last_name'] ?? '');
         $email = trim($_POST['email'] ?? '');
         $password = $_POST['password'] ?? '';
-        $confirmPassword = $_POST['confirmPassword'] ?? '';
+        $confirmPassword = $_POST['confirm_password'] ?? '';
         
         // Validate input
         if (empty($firstName) || empty($lastName) || empty($email) || empty($password) || empty($confirmPassword)) {
@@ -119,11 +151,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                     // Log the registration
                     logUserActivity($userId, 'registration', 'New user registered');
                     
-                    $success = 'Registration successful! You can now log in.';
+                    $success = 'Registration successful! You can now log in with your credentials.';
+                    
+                    // Clear form data on success
+                    $email = '';
                 }
             } catch(PDOException $e) {
-                $error = 'An error occurred. Please try again later.';
-                error_log("Registration error: " . $e->getMessage());
+                $error = 'Registration failed. Please try again or contact support if the problem persists.';
+                error_log("Registration error: " . $e->getMessage() . " - Email: " . $email);
             }
         }
     }
@@ -132,7 +167,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
 $page_title = "Login - National Museum of Art & Culture";
 ?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light" data-default-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -143,6 +178,30 @@ $page_title = "Login - National Museum of Art & Culture";
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Raleway:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Force light theme for login page -->
+    <style>
+        body, html {
+            background-color: var(--light-background);
+            color: var(--light-text-primary);
+        }
+        
+        /* Override any dark theme classes that might be applied */
+        .dark-theme {
+            --background: var(--light-background);
+            --background-alt: var(--light-background-alt);
+            --surface: var(--light-surface);
+            --text-primary: var(--light-text-primary);
+            --text-secondary: var(--light-text-secondary);
+            --text-tertiary: var(--light-text-tertiary);
+            --primary: var(--light-primary);
+            --primary-hover: var(--light-primary-hover);
+            --accent: var(--light-accent);
+            --border: var(--light-border);
+            --divider: var(--light-divider);
+            --shadow: var(--light-shadow);
+        }
+    </style>
 </head>
 <body class="light-theme">
     <?php include 'includes/header.php'; ?>
@@ -226,12 +285,12 @@ $page_title = "Login - National Museum of Art & Culture";
                             <div class="form-row">
                                 <div class="form-group">
                                     <label for="first-name">First Name</label>
-                                    <input type="text" id="first-name" name="firstName" required>
+                                    <input type="text" id="first-name" name="first_name" required>
                                 </div>
                                 
                                 <div class="form-group">
                                     <label for="last-name">Last Name</label>
-                                    <input type="text" id="last-name" name="lastName" required>
+                                    <input type="text" id="last-name" name="last_name" required>
                                 </div>
                             </div>
                             
@@ -248,7 +307,7 @@ $page_title = "Login - National Museum of Art & Culture";
                             
                             <div class="form-group">
                                 <label for="confirm-password">Confirm Password</label>
-                                <input type="password" id="confirm-password" name="confirmPassword" required>
+                                <input type="password" id="confirm-password" name="confirm_password" required>
                             </div>
                             
                             <button type="submit" class="btn btn-primary btn-block">Create Account</button>
@@ -268,6 +327,7 @@ $page_title = "Login - National Museum of Art & Culture";
 
     <script src="js/main.js"></script>
     <script src="js/auth.js"></script>
+    <script src="js/search.js"></script>
     <script>
         // Auto-hide logout message after 5 seconds
         document.addEventListener('DOMContentLoaded', function() {
@@ -279,6 +339,16 @@ $page_title = "Login - National Museum of Art & Culture";
                         logoutAlert.remove();
                     }, 300);
                 }, 5000);
+            }
+            
+            // Force light theme for login page
+            if (window.simpleThemeSwitcher) {
+                window.simpleThemeSwitcher.setTheme('light');
+            }
+            
+            // Ensure search functionality works
+            if (window.searchManager && !window.searchManager.initialized) {
+                window.searchManager.init();
             }
         });
     </script>

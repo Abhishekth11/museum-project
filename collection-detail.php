@@ -35,8 +35,9 @@ include 'includes/header.php';
     <div class="container">
         <div class="detail-grid">
             <div class="artwork-image">
-                <img src="<?php echo !empty($collection['image']) ? 'uploads/collections/' . $collection['image'] : 'images/collections/default.jpg'; ?>" 
-                     alt="<?php echo htmlspecialchars($collection['title']); ?>">
+                <img src="<?php echo getImageUrl($collection['image'], 'collection', $collection['category']); ?>" 
+                     alt="<?php echo htmlspecialchars($collection['title']); ?>"
+                     onerror="this.src='<?php echo getFallbackImage('collection', $collection['category']); ?>'">
             </div>
             
             <div class="artwork-info">
@@ -98,8 +99,9 @@ include 'includes/header.php';
             ?>
                 <div class="related-item">
                     <a href="collection-detail.php?id=<?php echo $related_item['id']; ?>">
-                        <img src="<?php echo !empty($related_item['image']) ? 'uploads/collections/' . $related_item['image'] : 'images/collections/default.jpg'; ?>" 
-                             alt="<?php echo htmlspecialchars($related_item['title']); ?>">
+                        <img src="<?php echo getImageUrl($related_item['image'], 'collection', $related_item['category']); ?>" 
+                             alt="<?php echo htmlspecialchars($related_item['title']); ?>"
+                             onerror="this.src='<?php echo getFallbackImage('collection', $related_item['category']); ?>'">
                         <h4><?php echo htmlspecialchars($related_item['title']); ?></h4>
                         <?php if (!empty($related_item['artist'])): ?>
                             <p><?php echo htmlspecialchars($related_item['artist']); ?></p>
