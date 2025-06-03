@@ -1041,27 +1041,19 @@ function getExhibitions($status = 'all', $limit = 0) {
     try {
         $stmt = $pdo->prepare($sql);
         $stmt->execute($params);
-<<<<<<< HEAD
-        return $stmt->fetchAll();
-=======
         $exhibitions = $stmt->fetchAll();
         
         // Ensure upload directories exist
         ensureUploadDirectories();
         
         return $exhibitions;
->>>>>>> feature-update
     } catch(PDOException $e) {
         error_log("Database error in getExhibitions: " . $e->getMessage());
         return [];
     }
 }
 
-<<<<<<< HEAD
-// Get events
-=======
 // Get events with enhanced image handling
->>>>>>> feature-update
 function getEvents($limit = 0, $future_only = false) {
     global $pdo;
     
