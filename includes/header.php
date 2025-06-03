@@ -139,9 +139,6 @@ $themeClass = $theme . '-theme';
                     <?php if (isLoggedIn()): ?>
                         <div class="user-menu">
                             <span>Welcome, <?php echo htmlspecialchars($_SESSION['user_name']); ?></span>
-                            <?php if (isAdmin()): ?>
-                                <a href="<?php echo getBaseUrl(); ?>admin/dashboard.php" class="btn btn-secondary">Admin</a>
-                            <?php endif; ?>
                             <a href="<?php echo getBaseUrl(); ?>logout.php" class="btn btn-primary">Logout</a>
                         </div>
                     <?php else: ?>

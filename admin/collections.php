@@ -205,7 +205,7 @@ function getAllCollections() {
     global $pdo;
     
     try {
-        $stmt = $pdo->prepare("SELECT c.*, u.first_name, u.last_name FROM collections c LEFT JOIN users u ON c.created_by = u.id WHERE c.status != 'deleted' ORDER BY c.created_at DESC");
+        $stmt = $pdo->prepare("SELECT * FROM collections  ORDER BY created_at DESC");
         $stmt->execute();
         return $stmt->fetchAll();
     } catch(PDOException $e) {
@@ -286,18 +286,17 @@ include 'includes/admin-header.php';
 ?>
 
 <div class="admin-container">
-    <div class="col-3">
+    <div class="admin-sidebar">
         <?php include 'includes/sidebar.php'; ?>
     </div>
-    <div class="col-9">
-        <main class="admin-main">
+    <main class="admin-content">
         <div class="admin-header">
             <h1>
-                <i class="fas fa-palette"></i>
-                <?php 
-                switch($action) {
-                    case 'add': echo 'Add New Collection Item'; break;
-                    case 'edit': echo 'Edit Collection Item'; break;
+                <i class="fas fa-calendar"></i>
+                <?php
+                switch ($action) {
+                    case 'add': echo 'Add New Collection'; break;
+                    case 'edit': echo 'Edit Collections'; break;
                     default: echo 'Manage Collections'; break;
                 }
                 ?>
@@ -329,19 +328,27 @@ include 'includes/admin-header.php';
             <div class="card-header">
                 <h2>All Collection Items</h2>
                 <div class="card-actions">
-                    <div class="search-box">
-                        <input type="text" id="collection-search" placeholder="Search collections...">
-                        <i class="fas fa-search"></i>
+                <div class="card-actions col-6">
+                    <div class="input-group mb-3">
+                        <input type="text" id="collection-search" class="form-control" placeholder="Search collections..." aria-label="Search Collections">
+                        <button class="btn btn-outline-secondary" type="button">
+                            <i class="fas fa-search"></i>
+                        </button>
                     </div>
-                    <div class="filter-box">
-                        <select id="category-filter">
-                            <option value="">All Categories</option>
-                            <option value="Painting">Painting</option>
-                            <option value="Sculpture">Sculpture</option>
-                            <option value="Photography">Photography</option>
-                            <option value="Digital Art">Digital Art</option>
-                            <option value="Mixed Media">Mixed Media</option>
-                        </select>
+                    <div class="container mt-4">
+                        <div class="row mb-3">
+                            <div class="col-md-4">
+                            <label for="category-filter" class="form-label">Filter by Category</label>
+                            <select id="category-filter" class="form-select">
+                                <option value="">All Categories</option>
+                                <option value="Painting">Painting</option>
+                                <option value="Sculpture">Sculpture</option>
+                                <option value="Photography">Photography</option>
+                                <option value="Digital Art">Digital Art</option>
+                                <option value="Mixed Media">Mixed Media</option>
+                            </select>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -366,7 +373,6 @@ include 'includes/admin-header.php';
                                 <th>Year</th>
                                 <th>Category</th>
                                 <th>Medium</th>
-                                <th>Status</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
@@ -374,9 +380,9 @@ include 'includes/admin-header.php';
                             <?php foreach ($collections as $collection): ?>
                             <tr data-category="<?php echo htmlspecialchars($collection['category']); ?>">
                                 <td>
-                                    <div class="table-image">
+                                    <div class="table-image" style="max-height:200px;max-width:200px;">
                                         <?php if ($collection['image']): ?>
-                                        <img src="../uploads/collections/<?php echo htmlspecialchars($collection['image']); ?>" alt="<?php echo htmlspecialchars($collection['title']); ?>">
+                                        <img src="<?php echo htmlspecialchars($collection['image']); ?>" alt="<?php echo htmlspecialchars($collection['title']); ?>">
                                         <?php else: ?>
                                         <div class="image-placeholder">
                                             <i class="fas fa-palette"></i>
@@ -393,14 +399,9 @@ include 'includes/admin-header.php';
                                 <td><?php echo htmlspecialchars($collection['artist']); ?></td>
                                 <td><?php echo htmlspecialchars($collection['year']); ?></td>
                                 <td>
-                                    <span class="badge badge-category"><?php echo htmlspecialchars($collection['category']); ?></span>
+                                    <span ><?php echo htmlspecialchars($collection['category']); ?></span>
                                 </td>
                                 <td><?php echo htmlspecialchars($collection['medium']); ?></td>
-                                <td>
-                                    <span class="badge badge-<?php echo $collection['status']; ?>">
-                                        <?php echo ucfirst($collection['status']); ?>
-                                    </span>
-                                </td>
                                 <td>
                                     <div class="action-buttons">
                                         <a href="../collection-detail.php?id=<?php echo $collection['id']; ?>" class="btn btn-sm btn-secondary" title="View" target="_blank">
@@ -547,7 +548,6 @@ include 'includes/admin-header.php';
         </div>
         <?php endif; ?>
         </main>
-    </div>
 </div>
 
 <!-- Delete Confirmation Modal -->

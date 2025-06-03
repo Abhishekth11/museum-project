@@ -316,7 +316,7 @@ function getAllExhibitions() {
                                 <td>
                                     <div class="table-image">
                                     <?php if ($event['image']): ?>
-                                    <img src="<?php echo htmlspecialchars($event['image']); ?>" alt="<?php echo htmlspecialchars($exhibition['title']); ?>">
+                                    <img src="<?php echo htmlspecialchars($event['image']); ?>" alt="<?php echo htmlspecialchars($event['title']); ?>">
                                     <?php else: ?>
                                     <div class="image-placeholder">
                                         <i class="fas fa-image"></i>

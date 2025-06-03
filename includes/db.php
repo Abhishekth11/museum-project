@@ -1,9 +1,9 @@
 <?php
 // Database configuration
 $host = 'localhost';
-$dbname = 'museum_db';
-$username = 'root';
-$password = '';
+$dbname = 'db_22167315';
+$username = '22167315';
+$password = '@#8899M@n0j9988#@';
 
 try {
     $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8mb4", $username, $password);

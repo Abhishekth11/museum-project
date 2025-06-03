@@ -25,45 +25,24 @@ $collection_highlights = getCollections('all', 4);
 include 'includes/header.php';
 ?>
 
-<?php if ($welcome_message): ?>
+<?php if ($welcome_message || isLoggedIn()): ?>
 <div class="welcome-banner">
     <div class="container">
-        <div class="welcome-message">
+        <div class="welcome-message col-6">
             <i class="fas fa-check-circle"></i>
             <span><?php echo htmlspecialchars($welcome_message); ?></span>
             <button class="close-welcome" onclick="this.parentElement.parentElement.style.display='none'">
                 <i class="fas fa-times"></i>
             </button>
         </div>
-    </div>
-</div>
-<?php endif; ?>
-
-<?php if (isLoggedIn()): ?>
-<div class="user-dashboard-preview">
-    <div class="container">
-        <div class="dashboard-preview-content">
+        <div class="dashboard-preview-content col-6">
             <h3>Welcome back, <?php echo htmlspecialchars($_SESSION['user_name']); ?>!</h3>
-            <?php if (hasPermission('manage_exhibitions')): ?>
                 <div class="admin-quick-links">
-                    <a href="admin/dashboard.php" class="btn btn-secondary">
-                        <i class="fas fa-tachometer-alt"></i> Go to Dashboard
-                    </a>
-                    <a href="admin/exhibitions.php" class="btn btn-outline">
-                        <i class="fas fa-image"></i> Manage Exhibitions
+                    <a href="admin/index.php" class="btn btn-secondary">
+                         Go to Dashboard
                     </a>
                 </div>
-            <?php else: ?>
-                <div class="user-quick-links">
-                    <a href="events.php" class="btn btn-secondary">
-                        <i class="fas fa-calendar"></i> View Events
-                    </a>
-                    <a href="collections.php" class="btn btn-outline">
-                        <i class="fas fa-palette"></i> Browse Collections
-                    </a>
-                </div>
-            <?php endif; ?>
-        </div>
+            </div>
     </div>
 </div>
 <?php endif; ?>
